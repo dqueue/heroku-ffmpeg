@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "FFMPEG-RESAMPLER 1"
-.TH FFMPEG-RESAMPLER 1 "2013-07-13" " " " "
+.TH FFMPEG-RESAMPLER 1 "2013-11-13" " " " "
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -133,7 +133,7 @@
 ffmpeg\-resampler \- FFmpeg Resampler
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-The FFmpeg resampler provides an high-level interface to the
+The FFmpeg resampler provides a high-level interface to the
 libswresample library audio resampling utilities. In particular it
 allows to perform audio resampling, audio channel layout rematrixing,
 and convert audio format and packing layout.
@@ -178,10 +178,14 @@ Set the internal sample format. Default value is \f(CW\*(C`none\*(C'\fR.
 This will automatically be chosen when it is not explicitly set.
 .IP "\fBicl, in_channel_layout\fR" 4
 .IX Item "icl, in_channel_layout"
-Set the input channel layout.
+.PD 0
 .IP "\fBocl, out_channel_layout\fR" 4
 .IX Item "ocl, out_channel_layout"
-Set the output channel layout.
+.PD
+Set the input/output channel layout.
+.Sp
+See the Channel Layout section in the \fIffmpeg\-utils\fR\|(1) manual
+for the required syntax.
 .IP "\fBclev, center_mix_level\fR" 4
 .IX Item "clev, center_mix_level"
 Set the center mix level. It is a value expressed in deciBel, and must be
@@ -198,6 +202,11 @@ be in the interval [\-32,32].
 .IP "\fBrmvol, rematrix_volume\fR" 4
 .IX Item "rmvol, rematrix_volume"
 Set rematrix volume. Default value is 1.0.
+.IP "\fBrematrix_maxval\fR" 4
+.IX Item "rematrix_maxval"
+Set maximum output value for rematrixing.
+This can be used to prevent clipping vs. preventing volumn reduction
+A value of 1.0 prevents cliping.
 .IP "\fBflags, swr_flags\fR" 4
 .IX Item "flags, swr_flags"
 Set flags used by the converter. Default value is 0.

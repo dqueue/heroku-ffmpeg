@@ -8,7 +8,7 @@
 dlname='libfdk-aac.so.0'
 
 # Names of this library.
-library_names='libfdk-aac.so.0.0.2 libfdk-aac.so.0 libfdk-aac.so'
+library_names='libfdk-aac.so.0.0.3 libfdk-aac.so.0 libfdk-aac.so'
 
 # The name of the static archive.
 old_library='libfdk-aac.a'
@@ -25,7 +25,7 @@ weak_library_names=''
 # Version information for libfdk-aac.
 current=0
 age=0
-revision=2
+revision=3
 
 # Is this an already installed library?
 installed=yes

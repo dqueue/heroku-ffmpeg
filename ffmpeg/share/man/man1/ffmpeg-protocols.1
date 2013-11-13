@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "FFMPEG-PROTOCOLS 1"
-.TH FFMPEG-PROTOCOLS 1 "2013-07-13" " " " "
+.TH FFMPEG-PROTOCOLS 1 "2013-11-13" " " " "
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -137,8 +137,8 @@ This document describes the input and output protocols provided by the
 libavformat library.
 .SH "PROTOCOLS"
 .IX Header "PROTOCOLS"
-Protocols are configured elements in FFmpeg which allow to access
-resources which require the use of a particular protocol.
+Protocols are configured elements in FFmpeg that enable access to
+resources that require specific protocols.
 .PP
 When you configure your FFmpeg build, all the supported protocols are
 enabled by default. You can list all available ones using the
@@ -261,6 +261,18 @@ use the command:
 The ff* tools default to the file protocol, that is a resource
 specified with the name \*(L"\s-1FILE\s0.mpeg\*(R" is interpreted as the \s-1URL\s0
 \&\*(L"file:FILE.mpeg\*(R".
+.PP
+This protocol accepts the following options:
+.IP "\fBtruncate\fR" 4
+.IX Item "truncate"
+Truncate existing files on write, if set to 1. A value of 0 prevents
+truncating. Default value is 1.
+.IP "\fBblocksize\fR" 4
+.IX Item "blocksize"
+Set I/O operation maximum block size, in bytes. Default value is
+\&\f(CW\*(C`INT_MAX\*(C'\fR, which results in not limiting the requested block size.
+Setting this value reasonably low improves user termination request reaction
+time, which is valuable for files on slow medium.
 .SS "ftp"
 .IX Subsection "ftp"
 \&\s-1FTP\s0 (File Transfer Protocol).
@@ -454,6 +466,14 @@ For writing to stdout with \fBffmpeg\fR:
 \&        ffmpeg \-i test.wav \-f avi pipe: | cat > test.avi
 .Ve
 .PP
+This protocol accepts the following options:
+.IP "\fBblocksize\fR" 4
+.IX Item "blocksize"
+Set I/O operation maximum block size, in bytes. Default value is
+\&\f(CW\*(C`INT_MAX\*(C'\fR, which results in not limiting the requested block size.
+Setting this value reasonably low improves user termination request reaction
+time, which is valuable if data transmission is slow.
+.PP
 Note that some formats (typically \s-1MOV\s0), require the output protocol to
 be seekable, so they will fail with the pipe output protocol.
 .SS "rtmp"
@@ -466,10 +486,16 @@ content across a \s-1TCP/IP\s0 network.
 The required syntax is:
 .PP
 .Vb 1
-\&        rtmp://<server>[:<port>][/<app>][/<instance>][/<playpath>]
+\&        rtmp://[<username>:<password>@]<server>[:<port>][/<app>][/<instance>][/<playpath>]
 .Ve
 .PP
 The accepted parameters are:
+.IP "\fBusername\fR" 4
+.IX Item "username"
+An optional username (mostly for publishing).
+.IP "\fBpassword\fR" 4
+.IX Item "password"
+An optional password (mostly for publishing).
 .IP "\fBserver\fR" 4
 .IX Item "server"
 The address of the \s-1RTMP\s0 server.
@@ -519,7 +545,8 @@ times to construct arbitrary \s-1AMF\s0 sequences.
 .IP "\fBrtmp_flashver\fR" 4
 .IX Item "rtmp_flashver"
 Version of the Flash plugin used to run the \s-1SWF\s0 player. The default
-is \s-1LNX\s0 9,0,124,2.
+is \s-1LNX\s0 9,0,124,2. (When publishing, the default is \s-1FMLE/3\s0.0 (compatible;
+<libavformat version>).)
 .IP "\fBrtmp_flush_interval\fR" 4
 .IX Item "rtmp_flush_interval"
 Number of packets flushed in the same request (\s-1RTMPT\s0 only). The default
@@ -567,6 +594,13 @@ For example to read with \fBffplay\fR a multimedia resource named
 .Vb 1
 \&        ffplay rtmp://myserver/vod/sample
 .Ve
+.PP
+To publish to a password protected server, passing the playpath and
+app names separately:
+.PP
+.Vb 1
+\&        ffmpeg \-re \-i <input> \-f flv \-rtmp_playpath some/long/path \-rtmp_app long/app/name rtmp://username:password@myserver/
+.Ve
 .SS "rtmpe"
 .IX Subsection "rtmpe"
 Encrypted Real-Time Messaging Protocol.
@@ -602,8 +636,36 @@ Real-Time Messaging Protocol tunneled through \s-1HTTPS\s0.
 The Real-Time Messaging Protocol tunneled through \s-1HTTPS\s0 (\s-1RTMPTS\s0) is used
 for streaming multimedia content within \s-1HTTPS\s0 requests to traverse
 firewalls.
-.SS "rtmp, rtmpe, rtmps, rtmpt, rtmpte"
-.IX Subsection "rtmp, rtmpe, rtmps, rtmpt, rtmpte"
+.SS "libssh"
+.IX Subsection "libssh"
+Secure File Transfer Protocol via libssh
+.PP
+Allow to read from or write to remote resources using \s-1SFTP\s0 protocol.
+.PP
+Following syntax is required.
+.PP
+.Vb 1
+\&        sftp://[user[:password]@]server[:port]/path/to/remote/resource.mpeg
+.Ve
+.PP
+This protocol accepts the following options.
+.IP "\fBtimeout\fR" 4
+.IX Item "timeout"
+Set timeout of socket I/O operations used by the underlying low level
+operation. By default it is set to \-1, which means that the timeout
+is not specified.
+.IP "\fBtruncate\fR" 4
+.IX Item "truncate"
+Truncate existing files on write, if set to 1. A value of 0 prevents
+truncating. Default value is 1.
+.PP
+Example: Play a file stored on remote server.
+.PP
+.Vb 1
+\&        ffplay sftp://user:password@server_address:22/home/user/resource.mpeg
+.Ve
+.SS "librtmp rtmp, rtmpe, rtmps, rtmpt, rtmpte"
+.IX Subsection "librtmp rtmp, rtmpe, rtmps, rtmpt, rtmpte"
 Real-Time Messaging Protocol and its variants supported through
 librtmp.
 .PP
@@ -646,7 +708,60 @@ To play the same stream using \fBffplay\fR:
 .Ve
 .SS "rtp"
 .IX Subsection "rtp"
-Real-Time Protocol.
+Real-time Transport Protocol.
+.PP
+The required syntax for an \s-1RTP\s0 \s-1URL\s0 is:
+rtp://\fIhostname\fR[:\fIport\fR][?\fIoption\fR=\fIval\fR...]
+.PP
+\&\fIport\fR specifies the \s-1RTP\s0 port to use.
+.PP
+The following \s-1URL\s0 options are supported:
+.IP "\fBttl=\fR\fIn\fR" 4
+.IX Item "ttl=n"
+Set the \s-1TTL\s0 (Time-To-Live) value (for multicast only).
+.IP "\fBrtcpport=\fR\fIn\fR" 4
+.IX Item "rtcpport=n"
+Set the remote \s-1RTCP\s0 port to \fIn\fR.
+.IP "\fBlocalrtpport=\fR\fIn\fR" 4
+.IX Item "localrtpport=n"
+Set the local \s-1RTP\s0 port to \fIn\fR.
+.IP "\fBlocalrtcpport=\fR\fIn\fR\fB'\fR" 4
+.IX Item "localrtcpport=n'"
+Set the local \s-1RTCP\s0 port to \fIn\fR.
+.IP "\fBpkt_size=\fR\fIn\fR" 4
+.IX Item "pkt_size=n"
+Set max packet size (in bytes) to \fIn\fR.
+.IP "\fBconnect=0|1\fR" 4
+.IX Item "connect=0|1"
+Do a \f(CW\*(C`connect()\*(C'\fR on the \s-1UDP\s0 socket (if set to 1) or not (if set
+to 0).
+.IP "\fBsources=\fR\fIip\fR\fB[,\fR\fIip\fR\fB]\fR" 4
+.IX Item "sources=ip[,ip]"
+List allowed source \s-1IP\s0 addresses.
+.IP "\fBblock=\fR\fIip\fR\fB[,\fR\fIip\fR\fB]\fR" 4
+.IX Item "block=ip[,ip]"
+List disallowed (blocked) source \s-1IP\s0 addresses.
+.IP "\fBwrite_to_source=0|1\fR" 4
+.IX Item "write_to_source=0|1"
+Send packets to the source address of the latest received packet (if
+set to 1) or to a default remote address (if set to 0).
+.IP "\fBlocalport=\fR\fIn\fR" 4
+.IX Item "localport=n"
+Set the local \s-1RTP\s0 port to \fIn\fR.
+.Sp
+This is a deprecated option. Instead, \fBlocalrtpport\fR should be
+used.
+.PP
+Important notes:
+.IP "1." 4
+If \fBrtcpport\fR is not set the \s-1RTCP\s0 port will be set to the \s-1RTP\s0
+port value plus 1.
+.IP "2." 4
+If \fBlocalrtpport\fR (the local \s-1RTP\s0 port) is not set any available
+port will be used for the local \s-1RTP\s0 and \s-1RTCP\s0 ports.
+.IP "3." 4
+If \fBlocalrtcpport\fR (the local \s-1RTCP\s0 port) is not set it will be
+set to the the local \s-1RTP\s0 port value plus 1.
 .SS "rtsp"
 .IX Subsection "rtsp"
 \&\s-1RTSP\s0 is not technically a protocol handler in libavformat, it is a demuxer
@@ -903,28 +1018,47 @@ This also sets timeout on \s-1TCP\s0 connection establishing.
 .Ve
 .SS "tls"
 .IX Subsection "tls"
-Transport Layer Security/Secure Sockets Layer
+Transport Layer Security (\s-1TLS\s0) / Secure Sockets Layer (\s-1SSL\s0)
 .PP
 The required syntax for a \s-1TLS/SSL\s0 url is:
 .PP
 .Vb 1
 \&        tls://<hostname>:<port>[?<options>]
 .Ve
-.IP "\fBlisten\fR" 4
-.IX Item "listen"
-Act as a server, listening for an incoming connection.
-.IP "\fBcafile=\fR\fIfilename\fR" 4
-.IX Item "cafile=filename"
-Certificate authority file. The file must be in OpenSSL \s-1PEM\s0 format.
-.IP "\fBcert=\fR\fIfilename\fR" 4
-.IX Item "cert=filename"
-Certificate file. The file must be in OpenSSL \s-1PEM\s0 format.
-.IP "\fBkey=\fR\fIfilename\fR" 4
-.IX Item "key=filename"
-Private key file.
-.IP "\fBverify=\fR\fI0|1\fR" 4
-.IX Item "verify=0|1"
-Verify the peer's certificate.
+.PP
+The following parameters can be set via command line options
+(or in code via \f(CW\*(C`AVOption\*(C'\fRs):
+.IP "\fBca_file, cafile=\fR\fIfilename\fR" 4
+.IX Item "ca_file, cafile=filename"
+A file containing certificate authority (\s-1CA\s0) root certificates to treat
+as trusted. If the linked \s-1TLS\s0 library contains a default this might not
+need to be specified for verification to work, but not all libraries and
+setups have defaults built in.
+The file must be in OpenSSL \s-1PEM\s0 format.
+.IP "\fBtls_verify=\fR\fI1|0\fR" 4
+.IX Item "tls_verify=1|0"
+If enabled, try to verify the peer that we are communicating with.
+Note, if using OpenSSL, this currently only makes sure that the
+peer certificate is signed by one of the root certificates in the \s-1CA\s0
+database, but it does not validate that the certificate actually
+matches the host name we are trying to connect to. (With GnuTLS,
+the host name is validated as well.)
+.Sp
+This is disabled by default since it requires a \s-1CA\s0 database to be
+provided by the caller in many cases.
+.IP "\fBcert_file, cert=\fR\fIfilename\fR" 4
+.IX Item "cert_file, cert=filename"
+A file containing a certificate to use in the handshake with the peer.
+(When operating as server, in listen mode, this is more often required
+by the peer, while client certificates only are mandated in certain
+setups.)
+.IP "\fBkey_file, key=\fR\fIfilename\fR" 4
+.IX Item "key_file, key=filename"
+A file containing the private key for the certificate.
+.IP "\fBlisten=\fR\fI1|0\fR" 4
+.IX Item "listen=1|0"
+If enabled, listen for connections on the provided port, and assume
+the server role in the handshake instead of the client role.
 .PP
 Example command lines:
 .PP
@@ -1028,6 +1162,24 @@ To receive over \s-1UDP\s0 from a remote endpoint:
 .Vb 1
 \&        ffmpeg \-i udp://[<multicast\-address>]:<port>
 .Ve
+.SS "unix"
+.IX Subsection "unix"
+Unix local socket
+.PP
+The required syntax for a Unix socket \s-1URL\s0 is:
+.PP
+.Vb 1
+\&        unix://<filepath>
+.Ve
+.PP
+The following parameters can be set via command line options
+(or in code via \f(CW\*(C`AVOption\*(C'\fRs):
+.IP "\fBtimeout\fR" 4
+.IX Item "timeout"
+Timeout in ms.
+.IP "\fBlisten\fR" 4
+.IX Item "listen"
+Create the Unix socket in listening mode.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 \&\fIffmpeg\fR\|(1), \fIffplay\fR\|(1), \fIffprobe\fR\|(1), \fIffserver\fR\|(1), \fIlibavformat\fR\|(3)

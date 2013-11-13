@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "FFPROBE 1"
-.TH FFPROBE 1 "2013-07-13" " " " "
+.TH FFPROBE 1 "2013-11-13" " " " "
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -164,7 +164,8 @@ name (which may be shared by other sections), and an unique
 name. See the output of \fBsections\fR.
 .PP
 Metadata tags stored in the container or in the streams are recognized
-and printed in the corresponding \*(L"\s-1FORMAT\s0\*(R" or \*(L"\s-1STREAM\s0\*(R" section.
+and printed in the corresponding \*(L"\s-1FORMAT\s0\*(R", \*(L"\s-1STREAM\s0\*(R" or \*(L"\s-1PROGRAM_STREAM\s0\*(R"
+section.
 .SH "OPTIONS"
 .IX Header "OPTIONS"
 All the numerical options, if not specified otherwise, accept a string
@@ -226,10 +227,18 @@ Show license.
 .IP "\fB\-h, \-?, \-help, \-\-help [\fR\fIarg\fR\fB]\fR" 4
 .IX Item "-h, -?, -help, --help [arg]"
 Show help. An optional parameter may be specified to print help about a specific
-item.
+item. If no argument is specified, only basic (non advanced) tool
+options are shown.
 .Sp
 Possible values of \fIarg\fR are:
 .RS 4
+.IP "\fBlong\fR" 4
+.IX Item "long"
+Print advanced tool options in addition to the basic tool options.
+.IP "\fBfull\fR" 4
+.IX Item "full"
+Print complete list of options, including shared and private options
+for encoders, decoders, demuxers, muxers, filters, etc.
 .IP "\fBdecoder=\fR\fIdecoder_name\fR" 4
 .IX Item "decoder=decoder_name"
 Print detailed information about the decoder named \fIdecoder_name\fR. Use the
@@ -289,6 +298,9 @@ Show available sample formats.
 .IP "\fB\-layouts\fR" 4
 .IX Item "-layouts"
 Show channel names and standard channel layouts.
+.IP "\fB\-colors\fR" 4
+.IX Item "-colors"
+Show recognized color names.
 .IP "\fB\-loglevel [repeat+]\fR\fIloglevel\fR \fB| \-v [repeat+]\fR\fIloglevel\fR" 4
 .IX Item "-loglevel [repeat+]loglevel | -v [repeat+]loglevel"
 Set the logging level used by the library.
@@ -502,14 +514,15 @@ muxer:
 \&        ffmpeg \-i input.flac \-id3v2_version 3 out.mp3
 .Ve
 .PP
-All codec AVOptions are obviously per-stream, so the chapter on stream
-specifiers applies to them
+All codec AVOptions are per-stream, and thus a stream specifier
+should be attached to them.
 .PP
-Note \fB\-nooption\fR syntax cannot be used for boolean AVOptions,
-use \fB\-option 0\fR/\fB\-option 1\fR.
+Note: the \fB\-nooption\fR syntax cannot be used for boolean
+AVOptions, use \fB\-option 0\fR/\fB\-option 1\fR.
 .PP
-Note2 old undocumented way of specifying per-stream AVOptions by prepending
-v/a/s to the options name is now obsolete and will be removed soon.
+Note: the old undocumented way of specifying per-stream AVOptions by
+prepending v/a/s to the options name is now obsolete and will be
+removed soon.
 .SS "Main options"
 .IX Subsection "Main options"
 .IP "\fB\-f\fR \fIformat\fR" 4
@@ -571,7 +584,7 @@ To show only video packets belonging to the video stream with index 1:
 .Ve
 .IP "\fB\-show_data\fR" 4
 .IX Item "-show_data"
-Show payload data, as an hexadecimal and \s-1ASCII\s0 dump. Coupled with
+Show payload data, as a hexadecimal and \s-1ASCII\s0 dump. Coupled with
 \&\fB\-show_packets\fR, it will dump the packets' data. Coupled with
 \&\fB\-show_streams\fR, it will dump the codec extradata.
 .Sp
@@ -672,6 +685,13 @@ multimedia stream.
 .Sp
 Each media stream information is printed within a dedicated section
 with name \*(L"\s-1STREAM\s0\*(R".
+.IP "\fB\-show_programs\fR" 4
+.IX Item "-show_programs"
+Show information about programs and their streams contained in the input
+multimedia stream.
+.Sp
+Each media stream information is printed within a dedicated section
+with name \*(L"\s-1PROGRAM_STREAM\s0\*(R".
 .IP "\fB\-show_chapters\fR" 4
 .IX Item "-show_chapters"
 Show information about chapters stored in the format.
@@ -685,6 +705,73 @@ corresponding stream section.
 .IX Item "-count_packets"
 Count the number of packets per stream and report it in the
 corresponding stream section.
+.IP "\fB\-read_intervals\fR \fIread_intervals\fR" 4
+.IX Item "-read_intervals read_intervals"
+Read only the specified intervals. \fIread_intervals\fR must be a
+sequence of interval specifications separated by \*(L",\*(R".
+\&\fBffprobe\fR will seek to the interval starting point, and will
+continue reading from that.
+.Sp
+Each interval is specified by two optional parts, separated by \*(L"%\*(R".
+.Sp
+The first part specifies the interval start position. It is
+interpreted as an abolute position, or as a relative offset from the
+current position if it is preceded by the \*(L"+\*(R" character. If this first
+part is not specified, no seeking will be performed when reading this
+interval.
+.Sp
+The second part specifies the interval end position. It is interpreted
+as an absolute position, or as a relative offset from the current
+position if it is preceded by the \*(L"+\*(R" character. If the offset
+specification starts with \*(L"#\*(R", it is interpreted as the number of
+packets to read (not including the flushing packets) from the interval
+start. If no second part is specified, the program will read until the
+end of the input.
+.Sp
+Note that seeking is not accurate, thus the actual interval start
+point may be different from the specified position. Also, when an
+interval duration is specified, the absolute end time will be computed
+by adding the duration to the interval start point found by seeking
+the file, rather than to the specified start value.
+.Sp
+The formal syntax is given by:
+.Sp
+.Vb 2
+\&        <INTERVAL>  ::= [<START>|+<START_OFFSET>][%[<END>|+<END_OFFSET>]]
+\&        <INTERVALS> ::= <INTERVAL>[,<INTERVALS>]
+.Ve
+.Sp
+A few examples follow.
+.RS 4
+.IP "\(bu" 4
+Seek to time 10, read packets until 20 seconds after the found seek
+point, then seek to position \f(CW\*(C`01:30\*(C'\fR (1 minute and thirty
+seconds) and read packets until position \f(CW\*(C`01:45\*(C'\fR.
+.Sp
+.Vb 1
+\&        10%+20,01:30%01:45
+.Ve
+.IP "\(bu" 4
+Read only 42 packets after seeking to position \f(CW\*(C`01:23\*(C'\fR:
+.Sp
+.Vb 1
+\&        01:23%+#42
+.Ve
+.IP "\(bu" 4
+Read only the first 20 seconds from the start:
+.Sp
+.Vb 1
+\&        %+20
+.Ve
+.IP "\(bu" 4
+Read from the start until position \f(CW\*(C`02:30\*(C'\fR:
+.Sp
+.Vb 1
+\&        %02:30
+.Ve
+.RE
+.RS 4
+.RE
 .IP "\fB\-show_private_data, \-private\fR" 4
 .IX Item "-show_private_data, -private"
 Show private data, that is data depending on the format of the
@@ -739,8 +826,8 @@ Print each section in the form:
 \&        [/SECTION]
 .Ve
 .PP
-Metadata tags are printed as a line in the corresponding \s-1FORMAT\s0 or
-\&\s-1STREAM\s0 section, and are prefixed by the string \*(L"\s-1TAG:\s0\*(R".
+Metadata tags are printed as a line in the corresponding \s-1FORMAT\s0, \s-1STREAM\s0 or
+\&\s-1PROGRAM_STREAM\s0 section, and are prefixed by the string \*(L"\s-1TAG:\s0\*(R".
 .PP
 A description of the accepted options follows.
 .IP "\fBnokey, nk\fR" 4

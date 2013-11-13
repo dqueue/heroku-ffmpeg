@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "FFMPEG-CODECS 1"
-.TH FFMPEG-CODECS 1 "2013-07-13" " " " "
+.TH FFMPEG-CODECS 1 "2013-11-13" " " " "
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -244,9 +244,6 @@ Use closed gop.
 .RE
 .RS 4
 .RE
-.IP "\fBsub_id\fR \fIinteger\fR" 4
-.IX Item "sub_id integer"
-Deprecated, currently unused.
 .IP "\fBme_method\fR \fIinteger\fR \fB(\fR\fIencoding,video\fR\fB)\fR" 4
 .IX Item "me_method integer (encoding,video)"
 Set motion estimation method.
@@ -352,7 +349,13 @@ Set max video quantizer scale (\s-1VBR\s0). Must be included between \-1 and
 Set max difference between the quantizer scale (\s-1VBR\s0).
 .IP "\fBbf\fR \fIinteger\fR \fB(\fR\fIencoding,video\fR\fB)\fR" 4
 .IX Item "bf integer (encoding,video)"
-Set max number of B frames.
+Set max number of B frames between non-B-frames.
+.Sp
+Must be an integer between \-1 and 16. 0 means that B\-frames are
+disabled. If a value of \-1 is used, it will choose an automatic value
+depending on the encoder.
+.Sp
+Default value is 0.
 .IP "\fBb_qfactor\fR \fIfloat\fR \fB(\fR\fIencoding,video\fR\fB)\fR" 4
 .IX Item "b_qfactor float (encoding,video)"
 Set qp factor between P and B frames.
@@ -627,10 +630,6 @@ Possible values:
 .IX Item "simple"
 .IP "\fBsimplemmx\fR" 4
 .IX Item "simplemmx"
-.IP "\fBlibmpeg2mmx\fR" 4
-.IX Item "libmpeg2mmx"
-.IP "\fBmmi\fR" 4
-.IX Item "mmi"
 .IP "\fBarm\fR" 4
 .IX Item "arm"
 .IP "\fBaltivec\fR" 4
@@ -647,10 +646,6 @@ Possible values:
 .IX Item "simpleneon"
 .IP "\fBsimplealpha\fR" 4
 .IX Item "simplealpha"
-.IP "\fBh264\fR" 4
-.IX Item "h264"
-.IP "\fBvp3\fR" 4
-.IX Item "vp3"
 .IP "\fBipp\fR" 4
 .IX Item "ipp"
 .IP "\fBxvidmmx\fR" 4
@@ -1156,35 +1151,34 @@ Set noise reduction.
 .IX Item "rc_init_occupancy integer (encoding,video)"
 Set number of bits which should be loaded into the rc buffer before
 decoding starts.
-.IP "\fBinter_threshold\fR \fIinteger\fR \fB(\fR\fIencoding,video\fR\fB)\fR" 4
-.IX Item "inter_threshold integer (encoding,video)"
-.PD 0
 .IP "\fBflags2\fR \fIflags\fR \fB(\fR\fIdecoding/encoding,audio,video\fR\fB)\fR" 4
 .IX Item "flags2 flags (decoding/encoding,audio,video)"
-.PD
 Possible values:
 .RS 4
 .IP "\fBfast\fR" 4
 .IX Item "fast"
-allow non spec compliant speedup tricks
+Allow non spec compliant speedup tricks.
 .IP "\fBsgop\fR" 4
 .IX Item "sgop"
-Deprecated, use mpegvideo private options instead
+Deprecated, use mpegvideo private options instead.
 .IP "\fBnoout\fR" 4
 .IX Item "noout"
-skip bitstream encoding
+Skip bitstream encoding.
+.IP "\fBignorecrop\fR" 4
+.IX Item "ignorecrop"
+Ignore cropping information from sps.
 .IP "\fBlocal_header\fR" 4
 .IX Item "local_header"
-place global headers at every keyframe instead of in extradata
+Place global headers at every keyframe instead of in extradata.
 .IP "\fBchunks\fR" 4
 .IX Item "chunks"
-Frame data might be split into multiple chunks
+Frame data might be split into multiple chunks.
 .IP "\fBshowall\fR" 4
 .IX Item "showall"
-Show all frames before the first keyframe
+Show all frames before the first keyframe.
 .IP "\fBskiprd\fR" 4
 .IX Item "skiprd"
-Deprecated, use mpegvideo private options instead
+Deprecated, use mpegvideo private options instead.
 .RE
 .RS 4
 .RE
@@ -1246,6 +1240,10 @@ Possible values:
 .IX Item "aac_ld"
 .IP "\fBaac_eld\fR" 4
 .IX Item "aac_eld"
+.IP "\fBmpeg2_aac_low\fR" 4
+.IX Item "mpeg2_aac_low"
+.IP "\fBmpeg2_aac_he\fR" 4
+.IX Item "mpeg2_aac_he"
 .IP "\fBdts\fR" 4
 .IX Item "dts"
 .IP "\fBdts_es\fR" 4
@@ -1527,6 +1525,34 @@ Set sample format audio decoders should prefer. Default value is
 .IX Item "sub_charenc encoding (decoding,subtitles)"
 .PD
 Set the input subtitles character encoding.
+.IP "\fBfield_order\fR  \fIfield_order\fR \fB(\fR\fIvideo\fR\fB)\fR" 4
+.IX Item "field_order  field_order (video)"
+Set/override the field order of the video.
+Possible values:
+.RS 4
+.IP "\fBprogressive\fR" 4
+.IX Item "progressive"
+Progressive video
+.IP "\fBtt\fR" 4
+.IX Item "tt"
+Interlaced video, top field coded and displayed first
+.IP "\fBbb\fR" 4
+.IX Item "bb"
+Interlaced video, bottom field coded and displayed first
+.IP "\fBtb\fR" 4
+.IX Item "tb"
+Interlaced video, top coded first, bottom displayed first
+.IP "\fBbt\fR" 4
+.IX Item "bt"
+Interlaced video, bottom coded first, top displayed first
+.RE
+.RS 4
+.RE
+.IP "\fBskip_alpha\fR \fIinteger\fR \fB(\fR\fIdecoding,video\fR\fB)\fR" 4
+.IX Item "skip_alpha integer (decoding,video)"
+Set to 1 to disable processing alpha (transparency). This works like the
+\&\fBgray\fR flag in the \fBflags\fR option which skips chroma information
+instead of alpha. Default is 0.
 .SH "DECODERS"
 .IX Header "DECODERS"
 Decoders are configured elements in FFmpeg which allow the decoding of
@@ -1665,6 +1691,52 @@ The format for this option is a string containing 16 24\-bits hexadecimal
 numbers (without 0x prefix) separated by comas, for example \f(CW\*(C`0d00ee,
 ee450d, 101010, eaeaea, 0ce60b, ec14ed, ebff0b, 0d617a, 7b7b7b, d1d1d1,
 7b2a0e, 0d950c, 0f007b, cf0dec, cfa80c, 7c127b\*(C'\fR.
+.SS "libzvbi-teletext"
+.IX Subsection "libzvbi-teletext"
+Libzvbi allows libavcodec to decode \s-1DVB\s0 teletext pages and \s-1DVB\s0 teletext
+subtitles. Requires the presence of the libzvbi headers and library during
+configuration. You need to explicitly configure the build with
+\&\f(CW\*(C`\-\-enable\-libzvbi\*(C'\fR.
+.PP
+\fIOptions\fR
+.IX Subsection "Options"
+.IP "\fBtxt_page\fR" 4
+.IX Item "txt_page"
+List of teletext page numbers to decode. You may use the special * string to
+match all pages. Pages that do not match the specified list are dropped.
+Default value is *.
+.IP "\fBtxt_chop_top\fR" 4
+.IX Item "txt_chop_top"
+Discards the top teletext line. Default value is 1.
+.IP "\fBtxt_format\fR" 4
+.IX Item "txt_format"
+Specifies the format of the decoded subtitles. The teletext decoder is capable
+of decoding the teletext pages to bitmaps or to simple text, you should use
+\&\*(L"bitmap\*(R" for teletext pages, because certain graphics and colors cannot be
+expressed in simple text. You might use \*(L"text\*(R" for teletext based subtitles if
+your application can handle simple text based subtitles. Default value is
+bitmap.
+.IP "\fBtxt_left\fR" 4
+.IX Item "txt_left"
+X offset of generated bitmaps, default is 0.
+.IP "\fBtxt_top\fR" 4
+.IX Item "txt_top"
+Y offset of generated bitmaps, default is 0.
+.IP "\fBtxt_chop_spaces\fR" 4
+.IX Item "txt_chop_spaces"
+Chops leading and trailing spaces and removes empty lines from the generated
+text. This option is useful for teletext based subtitles where empty spaces may
+be present at the start or at the end of the lines or empty lines may be
+present between the subtitle lines because of double-sized teletext charactes.
+Default value is 1.
+.IP "\fBtxt_duration\fR" 4
+.IX Item "txt_duration"
+Sets the display duration of the decoded teletext pages or subtitles in
+miliseconds. Default value is 30000 which is 30 seconds.
+.IP "\fBtxt_transparent\fR" 4
+.IX Item "txt_transparent"
+Force transparent background of the generated teletext bitmaps. Default value
+is 0 which means an opaque (black) background.
 .SH "ENCODERS"
 .IX Header "ENCODERS"
 Encoders are configured elements in FFmpeg which allow the encoding of
@@ -1686,6 +1758,86 @@ enabled encoders.
 .IX Header "AUDIO ENCODERS"
 A description of some of the currently available audio encoders
 follows.
+.SS "aac"
+.IX Subsection "aac"
+Advanced Audio Coding (\s-1AAC\s0) encoder.
+.PP
+This encoder is an experimental FFmpeg-native \s-1AAC\s0 encoder. Currently only the
+low complexity (AAC-LC) profile is supported. To use this encoder, you must set
+\&\fBstrict\fR option to \fBexperimental\fR or lower.
+.PP
+As this encoder is experimental, unexpected behavior may exist from time to
+time. For a more stable \s-1AAC\s0 encoder, see libvo-aacenc. However, be warned
+that it has a worse quality reported by some users.
+.PP
+See also libfdk_aac.
+.PP
+\fIOptions\fR
+.IX Subsection "Options"
+.IP "\fBb\fR" 4
+.IX Item "b"
+Set bit rate in bits/s. Setting this automatically activates constant bit rate
+(\s-1CBR\s0) mode.
+.IP "\fBq\fR" 4
+.IX Item "q"
+Set quality for variable bit rate (\s-1VBR\s0) mode. This option is valid only using
+the \fBffmpeg\fR command-line tool. For library interface users, use
+\&\fBglobal_quality\fR.
+.IP "\fBstereo_mode\fR" 4
+.IX Item "stereo_mode"
+Set stereo encoding mode. Possible values:
+.RS 4
+.IP "\fBauto\fR" 4
+.IX Item "auto"
+Automatically selected by the encoder.
+.IP "\fBms_off\fR" 4
+.IX Item "ms_off"
+Disable middle/side encoding. This is the default.
+.IP "\fBms_force\fR" 4
+.IX Item "ms_force"
+Force middle/side encoding.
+.RE
+.RS 4
+.RE
+.IP "\fBaac_coder\fR" 4
+.IX Item "aac_coder"
+Set \s-1AAC\s0 encoder coding method. Possible values:
+.RS 4
+.IP "\fBfaac\fR" 4
+.IX Item "faac"
+FAAC-inspired method.
+.Sp
+This method is a simplified reimplementation of the method used in \s-1FAAC\s0, which
+sets thresholds proportional to the band energies, and then decreases all the
+thresholds with quantizer steps to find the appropriate quantization with
+distortion below threshold band by band.
+.Sp
+The quality of this method is comparable to the two loop searching method
+descibed below, but somewhat a little better and slower.
+.IP "\fBanmr\fR" 4
+.IX Item "anmr"
+Average noise to mask ratio (\s-1ANMR\s0) trellis-based solution.
+.Sp
+This has a theoretic best quality out of all the coding methods, but at the
+cost of the slowest speed.
+.IP "\fBtwoloop\fR" 4
+.IX Item "twoloop"
+Two loop searching (\s-1TLS\s0) method.
+.Sp
+This method first sets quantizers depending on band thresholds and then tries
+to find an optimal combination by adding or subtracting a specific value from
+all quantizers and adjusting some individual quantizer a little.
+.Sp
+This method produces similar quality with the \s-1FAAC\s0 method and is the default.
+.IP "\fBfast\fR" 4
+.IX Item "fast"
+Constant quantizer method.
+.Sp
+This method sets a constant quantizer for all bands. This is the fastest of all
+the methods, yet produces the worst quality.
+.RE
+.RS 4
+.RE
 .SS "ac3 and ac3_fixed"
 .IX Subsection "ac3 and ac3_fixed"
 \&\s-1AC\-3\s0 audio encoders.
@@ -2224,6 +2376,283 @@ Selected by Encoder (default)
 .RE
 .RS 4
 .RE
+.SS "libfaac"
+.IX Subsection "libfaac"
+libfaac \s-1AAC\s0 (Advanced Audio Coding) encoder wrapper.
+.PP
+Requires the presence of the libfaac headers and library during
+configuration. You need to explicitly configure the build with
+\&\f(CW\*(C`\-\-enable\-libfaac \-\-enable\-nonfree\*(C'\fR.
+.PP
+This encoder is considered to be of higher quality with respect to the
+the native experimental FFmpeg \s-1AAC\s0 encoder.
+.PP
+For more information see the libfaac project at
+<\fBhttp://www.audiocoding.com/faac.html/\fR>.
+.PP
+\fIOptions\fR
+.IX Subsection "Options"
+.PP
+The following shared FFmpeg codec options are recognized.
+.PP
+The following options are supported by the libfaac wrapper. The
+\&\fBfaac\fR\-equivalent of the options are listed in parentheses.
+.IP "\fBb (\fR\fI\-b\fR\fB)\fR" 4
+.IX Item "b (-b)"
+Set bit rate in bits/s for \s-1ABR\s0 (Average Bit Rate) mode. If the bit rate
+is not explicitly specified, it is automatically set to a suitable
+value depending on the selected profile. \fBfaac\fR bitrate is
+expressed in kilobits/s.
+.Sp
+Note that libfaac does not support \s-1CBR\s0 (Constant Bit Rate) but only
+\&\s-1ABR\s0 (Average Bit Rate).
+.Sp
+If \s-1VBR\s0 mode is enabled this option is ignored.
+.IP "\fBar (\fR\fI\-R\fR\fB)\fR" 4
+.IX Item "ar (-R)"
+Set audio sampling rate (in Hz).
+.IP "\fBac (\fR\fI\-c\fR\fB)\fR" 4
+.IX Item "ac (-c)"
+Set the number of audio channels.
+.IP "\fBcutoff (\fR\fI\-C\fR\fB)\fR" 4
+.IX Item "cutoff (-C)"
+Set cutoff frequency. If not specified (or explicitly set to 0) it
+will use a value automatically computed by the library. Default value
+is 0.
+.IP "\fBprofile\fR" 4
+.IX Item "profile"
+Set audio profile.
+.Sp
+The following profiles are recognized:
+.RS 4
+.IP "\fBaac_main\fR" 4
+.IX Item "aac_main"
+Main \s-1AAC\s0 (Main)
+.IP "\fBaac_low\fR" 4
+.IX Item "aac_low"
+Low Complexity \s-1AAC\s0 (\s-1LC\s0)
+.IP "\fBaac_ssr\fR" 4
+.IX Item "aac_ssr"
+Scalable Sample Rate (\s-1SSR\s0)
+.IP "\fBaac_ltp\fR" 4
+.IX Item "aac_ltp"
+Long Term Prediction (\s-1LTP\s0)
+.RE
+.RS 4
+.Sp
+If not specified it is set to \fBaac_low\fR.
+.RE
+.IP "\fBflags +qscale\fR" 4
+.IX Item "flags +qscale"
+Set constant quality \s-1VBR\s0 (Variable Bit Rate) mode.
+.IP "\fBglobal_quality\fR" 4
+.IX Item "global_quality"
+Set quality in \s-1VBR\s0 mode as an integer number of lambda units.
+.Sp
+Only relevant when \s-1VBR\s0 mode is enabled with \f(CW\*(C`flags +qscale\*(C'\fR.  The
+value is converted to \s-1QP\s0 units by dividing it by \f(CW\*(C`FF_QP2LAMBDA\*(C'\fR,
+and used to set the quality value used by libfaac. A reasonable range
+for the option value in \s-1QP\s0 units is [10\-500], the higher the value the
+higher the quality.
+.IP "\fBq (\fR\fI\-q\fR\fB)\fR" 4
+.IX Item "q (-q)"
+Enable \s-1VBR\s0 mode when set to a non-negative value, and set constant
+quality value as a double floating point value in \s-1QP\s0 units.
+.Sp
+The value sets the quality value used by libfaac. A reasonable range
+for the option value is [10\-500], the higher the value the higher the
+quality.
+.Sp
+This option is valid only using the \fBffmpeg\fR command-line
+tool. For library interface users, use \fBglobal_quality\fR.
+.PP
+\fIExamples\fR
+.IX Subsection "Examples"
+.IP "\(bu" 4
+Use \fBffmpeg\fR to convert an audio file to \s-1ABR\s0 128 kbps \s-1AAC\s0 in an M4A (\s-1MP4\s0)
+container:
+.Sp
+.Vb 1
+\&        ffmpeg \-i input.wav \-codec:a libfaac \-b:a 128k \-output.m4a
+.Ve
+.IP "\(bu" 4
+Use \fBffmpeg\fR to convert an audio file to \s-1VBR\s0 \s-1AAC\s0, using the
+\&\s-1LTP\s0 \s-1AAC\s0 profile:
+.Sp
+.Vb 1
+\&        ffmpeg \-i input.wav \-c:a libfaac \-profile:a aac_ltp \-q:a 100 output.m4a
+.Ve
+.SS "libfdk_aac"
+.IX Subsection "libfdk_aac"
+libfdk-aac \s-1AAC\s0 (Advanced Audio Coding) encoder wrapper.
+.PP
+The libfdk-aac library is based on the Fraunhofer \s-1FDK\s0 \s-1AAC\s0 code from
+the Android project.
+.PP
+Requires the presence of the libfdk-aac headers and library during
+configuration. You need to explicitly configure the build with
+\&\f(CW\*(C`\-\-enable\-libfdk\-aac\*(C'\fR. The library is also incompatible with \s-1GPL\s0,
+so if you allow the use of \s-1GPL\s0, you should configure with
+\&\f(CW\*(C`\-\-enable\-gpl \-\-enable\-nonfree \-\-enable\-libfdk\-aac\*(C'\fR.
+.PP
+This encoder is considered to be of higher quality with respect to
+both the native experimental FFmpeg \s-1AAC\s0 encoder and
+libfaac.
+.PP
+For more information see the fdk-aac project at
+<\fBhttp://sourceforge.net/p/opencore\-amr/fdk\-aac/\fR>.
+.PP
+\fIOptions\fR
+.IX Subsection "Options"
+.PP
+The following options are mapped on the shared FFmpeg codec options.
+.IP "\fBb\fR" 4
+.IX Item "b"
+Set bit rate in bits/s. If the bitrate is not explicitly specified, it
+is automatically set to a suitable value depending on the selected
+profile.
+.Sp
+In case \s-1VBR\s0 mode is enabled the option is ignored.
+.IP "\fBar\fR" 4
+.IX Item "ar"
+Set audio sampling rate (in Hz).
+.IP "\fBchannels\fR" 4
+.IX Item "channels"
+Set the number of audio channels.
+.IP "\fBflags +qscale\fR" 4
+.IX Item "flags +qscale"
+Enable fixed quality, \s-1VBR\s0 (Variable Bit Rate) mode.
+Note that \s-1VBR\s0 is implicitely enabled when the \fBvbr\fR value is
+positive.
+.IP "\fBcutoff\fR" 4
+.IX Item "cutoff"
+Set cutoff frequency. If not specified (or explicitly set to 0) it
+will use a value automatically computed by the library. Default value
+is 0.
+.IP "\fBprofile\fR" 4
+.IX Item "profile"
+Set audio profile.
+.Sp
+The following profiles are recognized:
+.RS 4
+.IP "\fBaac_low\fR" 4
+.IX Item "aac_low"
+Low Complexity \s-1AAC\s0 (\s-1LC\s0)
+.IP "\fBaac_he\fR" 4
+.IX Item "aac_he"
+High Efficiency \s-1AAC\s0 (HE-AAC)
+.IP "\fBaac_he_v2\fR" 4
+.IX Item "aac_he_v2"
+High Efficiency \s-1AAC\s0 version 2 (HE\-AACv2)
+.IP "\fBaac_ld\fR" 4
+.IX Item "aac_ld"
+Low Delay \s-1AAC\s0 (\s-1LD\s0)
+.IP "\fBaac_eld\fR" 4
+.IX Item "aac_eld"
+Enhanced Low Delay \s-1AAC\s0 (\s-1ELD\s0)
+.RE
+.RS 4
+.Sp
+If not specified it is set to \fBaac_low\fR.
+.RE
+.PP
+The following are private options of the libfdk_aac encoder.
+.IP "\fBafterburner\fR" 4
+.IX Item "afterburner"
+Enable afterburner feature if set to 1, disabled if set to 0. This
+improves the quality but also the required processing power.
+.Sp
+Default value is 1.
+.IP "\fBeld_sbr\fR" 4
+.IX Item "eld_sbr"
+Enable \s-1SBR\s0 (Spectral Band Replication) for \s-1ELD\s0 if set to 1, disabled
+if set to 0.
+.Sp
+Default value is 0.
+.IP "\fBsignaling\fR" 4
+.IX Item "signaling"
+Set \s-1SBR/PS\s0 signaling style.
+.Sp
+It can assume one of the following values:
+.RS 4
+.IP "\fBdefault\fR" 4
+.IX Item "default"
+choose signaling implicitly (explicit hierarchical by default,
+implicit if global header is disabled)
+.IP "\fBimplicit\fR" 4
+.IX Item "implicit"
+implicit backwards compatible signaling
+.IP "\fBexplicit_sbr\fR" 4
+.IX Item "explicit_sbr"
+explicit \s-1SBR\s0, implicit \s-1PS\s0 signaling
+.IP "\fBexplicit_hierarchical\fR" 4
+.IX Item "explicit_hierarchical"
+explicit hierarchical signaling
+.RE
+.RS 4
+.Sp
+Default value is \fBdefault\fR.
+.RE
+.IP "\fBlatm\fR" 4
+.IX Item "latm"
+Output \s-1LATM/LOAS\s0 encapsulated data if set to 1, disabled if set to 0.
+.Sp
+Default value is 0.
+.IP "\fBheader_period\fR" 4
+.IX Item "header_period"
+Set StreamMuxConfig and \s-1PCE\s0 repetition period (in frames) for sending
+in-band configuration buffers within \s-1LATM/LOAS\s0 transport layer.
+.Sp
+Must be a 16\-bits non-negative integer.
+.Sp
+Default value is 0.
+.IP "\fBvbr\fR" 4
+.IX Item "vbr"
+Set \s-1VBR\s0 mode, from 1 to 5. 1 is lowest quality (though still pretty
+good) and 5 is highest quality. A value of 0 will disable \s-1VBR\s0 mode,
+and \s-1CBR\s0 (Constant Bit Rate) mode is enabled.
+.Sp
+Currently only the \fBaac_low\fR profile supports \s-1VBR\s0 mode.
+.Sp
+\&\s-1VBR\s0 modes 1\-5 correspond to roughly the following average bit rate:
+.RS 4
+.IP "\fB1\fR" 4
+.IX Item "1"
+32 kbps/channel
+.IP "\fB2\fR" 4
+.IX Item "2"
+40 kbps/channel
+.IP "\fB3\fR" 4
+.IX Item "3"
+48\-56 kbps/channel
+.IP "\fB4\fR" 4
+.IX Item "4"
+64 kbps/channel
+.IP "\fB5\fR" 4
+.IX Item "5"
+about 80\-96 kbps/channel
+.RE
+.RS 4
+.Sp
+Default value is 0.
+.RE
+.PP
+\fIExamples\fR
+.IX Subsection "Examples"
+.IP "\(bu" 4
+Use \fBffmpeg\fR to convert an audio file to \s-1VBR\s0 \s-1AAC\s0 in an M4A (\s-1MP4\s0)
+container:
+.Sp
+.Vb 1
+\&        ffmpeg \-i input.wav \-codec:a libfdk_aac \-vbr 3 output.m4a
+.Ve
+.IP "\(bu" 4
+Use \fBffmpeg\fR to convert an audio file to \s-1CBR\s0 64k kbps \s-1AAC\s0, using the
+High-Efficiency \s-1AAC\s0 profile:
+.Sp
+.Vb 1
+\&        ffmpeg \-i input.wav \-c:a libfdk_aac \-profile:a aac_he \-b:a 64k output.m4a
+.Ve
 .SS "libmp3lame"
 .IX Subsection "libmp3lame"
 \&\s-1LAME\s0 (Lame Ain't an \s-1MP3\s0 Encoder) \s-1MP3\s0 encoder wrapper.
@@ -2232,32 +2661,42 @@ Requires the presence of the libmp3lame headers and library during
 configuration. You need to explicitly configure the build with
 \&\f(CW\*(C`\-\-enable\-libmp3lame\*(C'\fR.
 .PP
-\fIOption Mapping\fR
-.IX Subsection "Option Mapping"
+See libshine for a fixed-point \s-1MP3\s0 encoder, although with a
+lower quality.
 .PP
-The following options are supported by the libmp3lame wrapper,
-the LAME-equivalent options follow the FFmpeg ones.
-.IP "\fBFFmpeg             :  \s-1LAME\s0\fR" 4
-.IX Item "FFmpeg             :  LAME"
-.PD 0
-.IP "\fBb                  :  b\fR" 4
-.IX Item "b                  :  b"
-.PD
-Set bitrate expressed in bits/s, \s-1LAME\s0 \f(CW\*(C`bitrate\*(C'\fR is expressed in
-kilobits/s.
-.IP "\fBq                  :  V\fR" 4
-.IX Item "q                  :  V"
-Set quality setting for \s-1VBR\s0.
-.IP "\fBcompression_level  :  q\fR" 4
-.IX Item "compression_level  :  q"
-Set algorithm quality. Valid arguments are integers in the 0\-9 range.
-.IP "\fBreservoir          :  N.A.\fR" 4
-.IX Item "reservoir          :  N.A."
-Enable use of bit reservoir. \s-1LAME\s0 has this enabled by default.
-.IP "\fBjoint_stereo       :  \-m j\fR" 4
-.IX Item "joint_stereo       :  -m j"
+\fIOptions\fR
+.IX Subsection "Options"
+.PP
+The following options are supported by the libmp3lame wrapper. The
+\&\fBlame\fR\-equivalent of the options are listed in parentheses.
+.IP "\fBb (\fR\fI\-b\fR\fB)\fR" 4
+.IX Item "b (-b)"
+Set bitrate expressed in bits/s for \s-1CBR\s0 or \s-1ABR\s0. \s-1LAME\s0 \f(CW\*(C`bitrate\*(C'\fR is
+expressed in kilobits/s.
+.IP "\fBq (\fR\fI\-V\fR\fB)\fR" 4
+.IX Item "q (-V)"
+Set constant quality setting for \s-1VBR\s0. This option is valid only
+using the \fBffmpeg\fR command-line tool. For library interface
+users, use \fBglobal_quality\fR.
+.IP "\fBcompression_level (\fR\fI\-q\fR\fB)\fR" 4
+.IX Item "compression_level (-q)"
+Set algorithm quality. Valid arguments are integers in the 0\-9 range,
+with 0 meaning highest quality but slowest, and 9 meaning fastest
+while producing the worst quality.
+.IP "\fBreservoir\fR" 4
+.IX Item "reservoir"
+Enable use of bit reservoir when set to 1. Default value is 1. \s-1LAME\s0
+has this enabled by default, but can be overriden by use
+\&\fB\-\-nores\fR option.
+.IP "\fBjoint_stereo (\fR\fI\-m j\fR\fB)\fR" 4
+.IX Item "joint_stereo (-m j)"
 Enable the encoder to use (on a frame by frame basis) either L/R
-stereo or mid/side stereo.
+stereo or mid/side stereo. Default value is 1.
+.IP "\fBabr (\fR\fI\-\-abr\fR\fB)\fR" 4
+.IX Item "abr (--abr)"
+Enable the encoder to use \s-1ABR\s0 when set to 1. The \fBlame\fR
+\&\fB\-\-abr\fR sets the target bitrate, while this options only
+tells FFmpeg to use \s-1ABR\s0 still relies on \fBb\fR to set bitrate.
 .SS "libopencore-amrnb"
 .IX Subsection "libopencore-amrnb"
 OpenCORE Adaptive Multi-Rate Narrowband encoder.
@@ -2302,6 +2741,38 @@ otherwise libavcodec will round to the nearest valid bitrate.
 .PD
 Allow discontinuous transmission (generate comfort noise) when set to 1. The
 default value is 0 (disabled).
+.SS "libshine"
+.IX Subsection "libshine"
+Shine Fixed-Point \s-1MP3\s0 encoder wrapper.
+.PP
+Shine is a fixed-point \s-1MP3\s0 encoder. It has a far better performance on
+platforms without an \s-1FPU\s0, e.g. armel CPUs, and some phones and tablets.
+However, as it is more targeted on performance than quality, it is not on par
+with \s-1LAME\s0 and other production-grade encoders quality-wise. Also, according to
+the project's homepage, this encoder may not be free of bugs as the code was
+written a long time ago and the project was dead for at least 5 years.
+.PP
+This encoder only supports stereo and mono input. This is also CBR-only.
+.PP
+The original project (last updated in early 2007) is at
+<\fBhttp://sourceforge.net/projects/libshine\-fxp/\fR>. We only support the
+updated fork by the Savonet/Liquidsoap project at <\fBhttps://github.com/savonet/shine\fR>.
+.PP
+Requires the presence of the libshine headers and library during
+configuration. You need to explicitly configure the build with
+\&\f(CW\*(C`\-\-enable\-libshine\*(C'\fR.
+.PP
+See also libmp3lame.
+.PP
+\fIOptions\fR
+.IX Subsection "Options"
+.PP
+The following options are supported by the libshine wrapper. The
+\&\fBshineenc\fR\-equivalent of the options are listed in parentheses.
+.IP "\fBb (\fR\fI\-b\fR\fB)\fR" 4
+.IX Item "b (-b)"
+Set bitrate expressed in bits/s for \s-1CBR\s0. \fBshineenc\fR \fB\-b\fR option
+is expressed in kilobits/s.
 .SS "libtwolame"
 .IX Subsection "libtwolame"
 TwoLAME \s-1MP2\s0 encoder wrapper.
@@ -2310,24 +2781,26 @@ Requires the presence of the libtwolame headers and library during
 configuration. You need to explicitly configure the build with
 \&\f(CW\*(C`\-\-enable\-libtwolame\*(C'\fR.
 .PP
-\fIOptions Mapping\fR
-.IX Subsection "Options Mapping"
+\fIOptions\fR
+.IX Subsection "Options"
 .PP
 The following options are supported by the libtwolame wrapper. The
-TwoLAME-equivalent options follow the FFmpeg ones and are in
+\&\fBtwolame\fR\-equivalent options follow the FFmpeg ones and are in
 parentheses.
-.IP "\fBb\fR" 4
-.IX Item "b"
-(b) Set bitrate in bits/s. Note that FFmpeg \f(CW\*(C`b\*(C'\fR option is
-expressed in bits/s, twolame \f(CW\*(C`b\*(C'\fR in kilobits/s. The default
-value is 128k.
-.IP "\fBq\fR" 4
-.IX Item "q"
-(V) Set quality for experimental \s-1VBR\s0 support. Maximum value range is
-from \-50 to 50, useful range is from \-10 to 10.
-.IP "\fBmode\fR" 4
-.IX Item "mode"
-(mode) Set \s-1MPEG\s0 mode. Possible values:
+.IP "\fBb (\fR\fI\-b\fR\fB)\fR" 4
+.IX Item "b (-b)"
+Set bitrate expressed in bits/s for \s-1CBR\s0. \fBtwolame\fR \fBb\fR
+option is expressed in kilobits/s. Default value is 128k.
+.IP "\fBq (\fR\fI\-V\fR\fB)\fR" 4
+.IX Item "q (-V)"
+Set quality for experimental \s-1VBR\s0 support. Maximum value range is
+from \-50 to 50, useful range is from \-10 to 10. The higher the
+value, the better the quality. This option is valid only using the
+\&\fBffmpeg\fR command-line tool. For library interface users,
+use \fBglobal_quality\fR.
+.IP "\fBmode (\fR\fI\-\-mode\fR\fB)\fR" 4
+.IX Item "mode (--mode)"
+Set the mode of the resulting audio. Possible values:
 .RS 4
 .IP "\fBauto\fR" 4
 .IX Item "auto"
@@ -2347,27 +2820,27 @@ Mono
 .RE
 .RS 4
 .RE
-.IP "\fBpsymodel\fR" 4
-.IX Item "psymodel"
-(psyc-mode) Set psychoacoustic model to use in encoding. The argument
-must be an integer between \-1 and 4, inclusive. The higher the value,
-the better the quality. The default value is 3.
-.IP "\fBenergy_levels\fR" 4
-.IX Item "energy_levels"
-(energy) Enable energy levels extensions when set to 1. The default
-value is 0 (disabled).
-.IP "\fBerror_protection\fR" 4
-.IX Item "error_protection"
-(protect) Enable \s-1CRC\s0 error protection when set to 1. The default value
-is 0 (disabled).
-.IP "\fBcopyright\fR" 4
-.IX Item "copyright"
-(copyright) Set \s-1MPEG\s0 audio copyright flag when set to 1. The default
-value is 0 (disabled).
-.IP "\fBoriginal\fR" 4
-.IX Item "original"
-(original) Set \s-1MPEG\s0 audio original flag when set to 1. The default
-value is 0 (disabled).
+.IP "\fBpsymodel (\fR\fI\-\-psyc\-mode\fR\fB)\fR" 4
+.IX Item "psymodel (--psyc-mode)"
+Set psychoacoustic model to use in encoding. The argument must be
+an integer between \-1 and 4, inclusive. The higher the value, the
+better the quality. The default value is 3.
+.IP "\fBenergy_levels (\fR\fI\-\-energy\fR\fB)\fR" 4
+.IX Item "energy_levels (--energy)"
+Enable energy levels extensions when set to 1. The default value is
+0 (disabled).
+.IP "\fBerror_protection (\fR\fI\-\-protect\fR\fB)\fR" 4
+.IX Item "error_protection (--protect)"
+Enable \s-1CRC\s0 error protection when set to 1. The default value is 0
+(disabled).
+.IP "\fBcopyright (\fR\fI\-\-copyright\fR\fB)\fR" 4
+.IX Item "copyright (--copyright)"
+Set \s-1MPEG\s0 audio copyright flag when set to 1. The default value is 0
+(disabled).
+.IP "\fBoriginal (\fR\fI\-\-original\fR\fB)\fR" 4
+.IX Item "original (--original)"
+Set \s-1MPEG\s0 audio original flag when set to 1. The default value is 0
+(disabled).
 .SS "libvo-aacenc"
 .IX Subsection "libvo-aacenc"
 VisualOn \s-1AAC\s0 encoder.
@@ -2376,15 +2849,18 @@ Requires the presence of the libvo-aacenc headers and library during
 configuration. You need to explicitly configure the build with
 \&\f(CW\*(C`\-\-enable\-libvo\-aacenc \-\-enable\-version3\*(C'\fR.
 .PP
+This encoder is considered to be worse than the
+native experimental FFmpeg \s-1AAC\s0 encoder, according to
+multiple sources.
+.PP
 \fIOptions\fR
 .IX Subsection "Options"
 .PP
 The VisualOn \s-1AAC\s0 encoder only support encoding AAC-LC and up to 2
-channels. It is also CBR-only. It is considered to be worse than the
-native experimental FFmpeg \s-1AAC\s0 encoder.
+channels. It is also CBR-only.
 .IP "\fBb\fR" 4
 .IX Item "b"
-Bitrate.
+Set bit rate in bits/s.
 .SS "libvo-amrwbenc"
 .IX Subsection "libvo-amrwbenc"
 VisualOn Adaptive Multi-Rate Wideband encoder.
@@ -2506,6 +2982,55 @@ Set cutoff bandwidth in Hz. The argument must be exactly one of the
 following: 4000, 6000, 8000, 12000, or 20000, corresponding to
 narrowband, mediumband, wideband, super wideband, and fullband
 respectively. The default is 0 (cutoff disabled).
+.SS "libvorbis"
+.IX Subsection "libvorbis"
+libvorbis encoder wrapper.
+.PP
+Requires the presence of the libvorbisenc headers and library during
+configuration. You need to explicitly configure the build with
+\&\f(CW\*(C`\-\-enable\-libvorbis\*(C'\fR.
+.PP
+\fIOptions\fR
+.IX Subsection "Options"
+.PP
+The following options are supported by the libvorbis wrapper. The
+\&\fBoggenc\fR\-equivalent of the options are listed in parentheses.
+.PP
+To get a more accurate and extensive documentation of the libvorbis
+options, consult the libvorbisenc's and \fBoggenc\fR's documentations.
+See <\fBhttp://xiph.org/vorbis/\fR>,
+<\fBhttp://wiki.xiph.org/Vorbis\-tools\fR>, and \fIoggenc\fR\|(1).
+.IP "\fBb (\fR\fI\-b\fR\fB)\fR" 4
+.IX Item "b (-b)"
+Set bitrate expressed in bits/s for \s-1ABR\s0. \fBoggenc\fR \fB\-b\fR is
+expressed in kilobits/s.
+.IP "\fBq (\fR\fI\-q\fR\fB)\fR" 4
+.IX Item "q (-q)"
+Set constant quality setting for \s-1VBR\s0. The value should be a float
+number in the range of \-1.0 to 10.0. The higher the value, the better
+the quality. The default value is \fB3.0\fR.
+.Sp
+This option is valid only using the \fBffmpeg\fR command-line tool.
+For library interface users, use \fBglobal_quality\fR.
+.IP "\fBcutoff (\fR\fI\-\-advanced\-encode\-option lowpass_frequency=N\fR\fB)\fR" 4
+.IX Item "cutoff (--advanced-encode-option lowpass_frequency=N)"
+Set cutoff bandwidth in Hz, a value of 0 disables cutoff. \fBoggenc\fR's
+related option is expressed in kHz. The default value is \fB0\fR (cutoff
+disabled).
+.IP "\fBminrate (\fR\fI\-m\fR\fB)\fR" 4
+.IX Item "minrate (-m)"
+Set minimum bitrate expressed in bits/s. \fBoggenc\fR \fB\-m\fR is
+expressed in kilobits/s.
+.IP "\fBmaxrate (\fR\fI\-M\fR\fB)\fR" 4
+.IX Item "maxrate (-M)"
+Set maximum bitrate expressed in bits/s. \fBoggenc\fR \fB\-M\fR is
+expressed in kilobits/s. This only has effect on \s-1ABR\s0 mode.
+.IP "\fBiblock (\fR\fI\-\-advanced\-encode\-option impulse_noisetune=N\fR\fB)\fR" 4
+.IX Item "iblock (--advanced-encode-option impulse_noisetune=N)"
+Set noise floor bias for impulse blocks. The value is a float number from
+\&\-15.0 to 0.0. A negative bias instructs the encoder to pay special attention
+to the crispness of transients in the encoded audio. The tradeoff for better
+transient response is a higher bitrate.
 .SS "libwavpack"
 .IX Subsection "libwavpack"
 A wrapper providing WavPack encoding through libwavpack.
@@ -2536,11 +3061,14 @@ A description of some of the currently available video encoders
 follows.
 .SS "libtheora"
 .IX Subsection "libtheora"
-Theora format supported through libtheora.
+libtheora Theora encoder wrapper.
 .PP
 Requires the presence of the libtheora headers and library during
 configuration. You need to explicitly configure the build with
 \&\f(CW\*(C`\-\-enable\-libtheora\*(C'\fR.
+.PP
+For more informations about the libtheora project see
+<\fBhttp://www.theora.org/\fR>.
 .PP
 \fIOptions\fR
 .IX Subsection "Options"
@@ -2549,11 +3077,11 @@ The following global options are mapped to internal libtheora options
 which affect the quality and the bitrate of the encoded stream.
 .IP "\fBb\fR" 4
 .IX Item "b"
-Set the video bitrate, only works if the \f(CW\*(C`qscale\*(C'\fR flag in
-\&\fBflags\fR is not enabled.
+Set the video bitrate in bit/s for \s-1CBR\s0 (Constant Bit Rate) mode.  In
+case \s-1VBR\s0 (Variable Bit Rate) mode is enabled this option is ignored.
 .IP "\fBflags\fR" 4
 .IX Item "flags"
-Used to enable constant quality mode encoding through the
+Used to enable constant quality mode (\s-1VBR\s0) encoding through the
 \&\fBqscale\fR flag, and to enable the \f(CW\*(C`pass1\*(C'\fR and \f(CW\*(C`pass2\*(C'\fR
 modes.
 .IP "\fBg\fR" 4
@@ -2561,17 +3089,37 @@ modes.
 Set the \s-1GOP\s0 size.
 .IP "\fBglobal_quality\fR" 4
 .IX Item "global_quality"
-Set the global quality in lambda units, only works if the
-\&\f(CW\*(C`qscale\*(C'\fR flag in \fBflags\fR is enabled. The value is clipped
-in the [0 \- 10*\f(CW\*(C`FF_QP2LAMBDA\*(C'\fR] range, and then multiplied for 6.3
-to get a value in the native libtheora range [0\-63]. A higher value
-corresponds to a higher quality.
+Set the global quality as an integer in lambda units.
 .Sp
-For example, to set maximum constant quality encoding with
-\&\fBffmpeg\fR:
+Only relevant when \s-1VBR\s0 mode is enabled with \f(CW\*(C`flags +qscale\*(C'\fR. The
+value is converted to \s-1QP\s0 units by dividing it by \f(CW\*(C`FF_QP2LAMBDA\*(C'\fR,
+clipped in the [0 \- 10] range, and then multiplied by 6.3 to get a
+value in the native libtheora range [0\-63]. A higher value corresponds
+to a higher quality.
+.IP "\fBq\fR" 4
+.IX Item "q"
+Enable \s-1VBR\s0 mode when set to a non-negative value, and set constant
+quality value as a double floating point value in \s-1QP\s0 units.
+.Sp
+The value is clipped in the [0\-10] range, and then multiplied by 6.3
+to get a value in the native libtheora range [0\-63].
+.Sp
+This option is valid only using the \fBffmpeg\fR command-line
+tool. For library interface users, use \fBglobal_quality\fR.
+.PP
+\fIExamples\fR
+.IX Subsection "Examples"
+.IP "\(bu" 4
+Set maximum constant quality (\s-1VBR\s0) encoding with \fBffmpeg\fR:
 .Sp
 .Vb 1
-\&        ffmpeg \-i INPUT \-flags:v qscale \-global_quality:v "10*QP2LAMBDA" \-codec:v libtheora OUTPUT.ogg
+\&        ffmpeg \-i INPUT \-codec:v libtheora \-q:v 10 OUTPUT.ogg
+.Ve
+.IP "\(bu" 4
+Use \fBffmpeg\fR to convert a \s-1CBR\s0 1000 kbps Theora video stream:
+.Sp
+.Vb 1
+\&        ffmpeg \-i INPUT \-codec:v libtheora \-b:v 1000k OUTPUT.ogg
 .Ve
 .SS "libvpx"
 .IX Subsection "libvpx"
@@ -2708,261 +3256,373 @@ For more information about libvpx see:
 .IX Subsection "libx264"
 x264 H.264/MPEG\-4 \s-1AVC\s0 encoder wrapper.
 .PP
-Requires the presence of the libx264 headers and library during
-configuration. You need to explicitly configure the build with
+This encoder requires the presence of the libx264 headers and library
+during configuration. You need to explicitly configure the build with
 \&\f(CW\*(C`\-\-enable\-libx264\*(C'\fR.
 .PP
-x264 supports an impressive number of features, including 8x8 and 4x4 adaptive
-spatial transform, adaptive B\-frame placement, \s-1CAVLC/CABAC\s0 entropy coding,
-interlacing (\s-1MBAFF\s0), lossless mode, psy optimizations for detail retention
-(adaptive quantization, psy-RD, psy-trellis).
+libx264 supports an impressive number of features, including 8x8 and
+4x4 adaptive spatial transform, adaptive B\-frame placement, \s-1CAVLC/CABAC\s0
+entropy coding, interlacing (\s-1MBAFF\s0), lossless mode, psy optimizations
+for detail retention (adaptive quantization, psy-RD, psy-trellis).
 .PP
-The FFmpeg wrapper provides a mapping for most of them using global options
-that match those of the encoders and provides private options for the unique
-encoder options. Additionally an expert override is provided to directly pass
-a list of key=value tuples as accepted by x264_param_parse.
+Many libx264 encoder options are mapped to FFmpeg global codec
+options, while unique encoder options are provided through private
+options. Additionally the \fBx264opts\fR and \fBx264\-params\fR
+private options allows to pass a list of key=value tuples as accepted
+by the libx264 \f(CW\*(C`x264_param_parse\*(C'\fR function.
 .PP
-\fIOption Mapping\fR
-.IX Subsection "Option Mapping"
+The x264 project website is at
+<\fBhttp://www.videolan.org/developers/x264.html\fR>.
 .PP
-The following options are supported by the x264 wrapper, the x264\-equivalent
-options follow the FFmpeg ones.
-.IP "\fBb                  :  bitrate\fR" 4
-.IX Item "b                  :  bitrate"
-FFmpeg \f(CW\*(C`b\*(C'\fR option is expressed in bits/s, x264 \f(CW\*(C`bitrate\*(C'\fR in kilobits/s.
-.IP "\fBbf                 :  bframes\fR" 4
-.IX Item "bf                 :  bframes"
-Maximum number of B\-frames.
-.IP "\fBg                  :  keyint\fR" 4
-.IX Item "g                  :  keyint"
-Maximum \s-1GOP\s0 size.
-.IP "\fBqmin               :  qpmin\fR" 4
-.IX Item "qmin               :  qpmin"
+\fIOptions\fR
+.IX Subsection "Options"
+.PP
+The following options are supported by the libx264 wrapper. The
+\&\fBx264\fR\-equivalent options or values are listed in parentheses
+for easy migration.
+.PP
+To reduce the duplication of documentation, only the private options
+and some others requiring special attention are documented here. For
+the documentation of the undocumented generic options, see
+the Codec Options chapter.
+.PP
+To get a more accurate and extensive documentation of the libx264
+options, invoke the command \fBx264 \-\-full\-help\fR or consult
+the libx264 documentation.
+.IP "\fBb (\fR\fIbitrate\fR\fB)\fR" 4
+.IX Item "b (bitrate)"
+Set bitrate in bits/s. Note that FFmpeg's \fBb\fR option is
+expressed in bits/s, while \fBx264\fR's \fBbitrate\fR is in
+kilobits/s.
+.IP "\fBbf (\fR\fIbframes\fR\fB)\fR" 4
+.IX Item "bf (bframes)"
 .PD 0
-.IP "\fBqmax               :  qpmax\fR" 4
-.IX Item "qmax               :  qpmax"
-.IP "\fBqdiff              :  qpstep\fR" 4
-.IX Item "qdiff              :  qpstep"
-.IP "\fBqblur              :  qblur\fR" 4
-.IX Item "qblur              :  qblur"
-.IP "\fBqcomp              :  qcomp\fR" 4
-.IX Item "qcomp              :  qcomp"
-.IP "\fBrefs               :  ref\fR" 4
-.IX Item "refs               :  ref"
-.IP "\fBsc_threshold       :  scenecut\fR" 4
-.IX Item "sc_threshold       :  scenecut"
-.IP "\fBtrellis            :  trellis\fR" 4
-.IX Item "trellis            :  trellis"
-.IP "\fBnr                 :  nr\fR" 4
-.IX Item "nr                 :  nr"
+.IP "\fBg (\fR\fIkeyint\fR\fB)\fR" 4
+.IX Item "g (keyint)"
+.IP "\fBqmax (\fR\fIqpmax\fR\fB)\fR" 4
+.IX Item "qmax (qpmax)"
+.IP "\fBqmin (\fR\fIqpmin\fR\fB)\fR" 4
+.IX Item "qmin (qpmin)"
+.IP "\fBqdiff (\fR\fIqpstep\fR\fB)\fR" 4
+.IX Item "qdiff (qpstep)"
+.IP "\fBqblur (\fR\fIqblur\fR\fB)\fR" 4
+.IX Item "qblur (qblur)"
+.IP "\fBqcomp (\fR\fIqcomp\fR\fB)\fR" 4
+.IX Item "qcomp (qcomp)"
+.IP "\fBrefs (\fR\fIref\fR\fB)\fR" 4
+.IX Item "refs (ref)"
+.IP "\fBsc_threshold (\fR\fIscenecut\fR\fB)\fR" 4
+.IX Item "sc_threshold (scenecut)"
+.IP "\fBtrellis (\fR\fItrellis\fR\fB)\fR" 4
+.IX Item "trellis (trellis)"
+.IP "\fBnr  (\fR\fInr\fR\fB)\fR" 4
+.IX Item "nr  (nr)"
+.IP "\fBme_range (\fR\fImerange\fR\fB)\fR" 4
+.IX Item "me_range (merange)"
+.IP "\fBme_method (\fR\fIme\fR\fB)\fR" 4
+.IX Item "me_method (me)"
 .PD
-Noise reduction.
-.IP "\fBme_range           :  merange\fR" 4
-.IX Item "me_range           :  merange"
-.PD 0
-.IP "\fBme_method          :  me\fR" 4
-.IX Item "me_method          :  me"
-.IP "\fBsubq               :  subme\fR" 4
-.IX Item "subq               :  subme"
-.IP "\fBb_strategy         :  b\-adapt\fR" 4
-.IX Item "b_strategy         :  b-adapt"
-.IP "\fBkeyint_min         :  keyint-min\fR" 4
-.IX Item "keyint_min         :  keyint-min"
-.IP "\fBcoder              :  cabac\fR" 4
-.IX Item "coder              :  cabac"
-.PD
-Set coder to \f(CW\*(C`ac\*(C'\fR to use \s-1CABAC\s0.
-.IP "\fBcmp                :  chroma-me\fR" 4
-.IX Item "cmp                :  chroma-me"
-Set to \f(CW\*(C`chroma\*(C'\fR to use chroma motion estimation.
-.IP "\fBthreads            :  threads\fR" 4
-.IX Item "threads            :  threads"
-.PD 0
-.IP "\fBthread_type        :  sliced_threads\fR" 4
-.IX Item "thread_type        :  sliced_threads"
-.PD
-Set to \f(CW\*(C`slice\*(C'\fR to use sliced threading instead of frame threading.
-.IP "\fBflags \-cgop        :  open-gop\fR" 4
-.IX Item "flags -cgop        :  open-gop"
-Set \f(CW\*(C`\-cgop\*(C'\fR to use recovery points to close GOPs.
-.IP "\fBrc_init_occupancy  :  vbv-init\fR" 4
-.IX Item "rc_init_occupancy  :  vbv-init"
-Initial buffer occupancy.
-.PP
-\fIPrivate Options\fR
-.IX Subsection "Private Options"
-.IP "\fB\-preset\fR \fIstring\fR" 4
-.IX Item "-preset string"
-Set the encoding preset (cf. x264 \-\-fullhelp).
-.IP "\fB\-tune\fR \fIstring\fR" 4
-.IX Item "-tune string"
-Tune the encoding params (cf. x264 \-\-fullhelp).
-.IP "\fB\-profile\fR \fIstring\fR" 4
-.IX Item "-profile string"
-Set profile restrictions (cf. x264 \-\-fullhelp).
-.IP "\fB\-fastfirstpass\fR \fIinteger\fR" 4
-.IX Item "-fastfirstpass integer"
-Use fast settings when encoding first pass.
-.IP "\fB\-crf\fR \fIfloat\fR" 4
-.IX Item "-crf float"
-Select the quality for constant quality mode.
-.IP "\fB\-crf_max\fR \fIfloat\fR" 4
-.IX Item "-crf_max float"
-In \s-1CRF\s0 mode, prevents \s-1VBV\s0 from lowering quality beyond this point.
-.IP "\fB\-qp\fR \fIinteger\fR" 4
-.IX Item "-qp integer"
-Constant quantization parameter rate control method.
-.IP "\fB\-aq\-mode\fR \fIinteger\fR" 4
-.IX Item "-aq-mode integer"
-\&\s-1AQ\s0 method
-.Sp
-Possible values:
+Set motion estimation method. Possible values in the decreasing order
+of speed:
 .RS 4
-.IP "\fBnone\fR" 4
-.IX Item "none"
+.IP "\fBdia (\fR\fIdia\fR\fB)\fR" 4
+.IX Item "dia (dia)"
 .PD 0
-.IP "\fBvariance\fR" 4
-.IX Item "variance"
+.IP "\fBepzs (\fR\fIdia\fR\fB)\fR" 4
+.IX Item "epzs (dia)"
 .PD
+Diamond search with radius 1 (fastest). \fBepzs\fR is an alias for
+\&\fBdia\fR.
+.IP "\fBhex (\fR\fIhex\fR\fB)\fR" 4
+.IX Item "hex (hex)"
+Hexagonal search with radius 2.
+.IP "\fBumh (\fR\fIumh\fR\fB)\fR" 4
+.IX Item "umh (umh)"
+Uneven multi-hexagon search.
+.IP "\fBesa (\fR\fIesa\fR\fB)\fR" 4
+.IX Item "esa (esa)"
+Exhaustive search.
+.IP "\fBtesa (\fR\fItesa\fR\fB)\fR" 4
+.IX Item "tesa (tesa)"
+Hadamard exhaustive search (slowest).
+.RE
+.RS 4
+.RE
+.IP "\fBsubq (\fR\fIsubme\fR\fB)\fR" 4
+.IX Item "subq (subme)"
+.PD 0
+.IP "\fBb_strategy (\fR\fIb\-adapt\fR\fB)\fR" 4
+.IX Item "b_strategy (b-adapt)"
+.IP "\fBkeyint_min (\fR\fImin-keyint\fR\fB)\fR" 4
+.IX Item "keyint_min (min-keyint)"
+.IP "\fBcoder\fR" 4
+.IX Item "coder"
+.PD
+Set entropy encoder. Possible values:
+.RS 4
+.IP "\fBac\fR" 4
+.IX Item "ac"
+Enable \s-1CABAC\s0.
+.IP "\fBvlc\fR" 4
+.IX Item "vlc"
+Enable \s-1CAVLC\s0 and disable \s-1CABAC\s0. It generates the same effect as
+\&\fBx264\fR's \fB\-\-no\-cabac\fR option.
+.RE
+.RS 4
+.RE
+.IP "\fBcmp\fR" 4
+.IX Item "cmp"
+Set full pixel motion estimation comparation algorithm. Possible values:
+.RS 4
+.IP "\fBchroma\fR" 4
+.IX Item "chroma"
+Enable chroma in motion estimation.
+.IP "\fBsad\fR" 4
+.IX Item "sad"
+Ignore chroma in motion estimation. It generates the same effect as
+\&\fBx264\fR's \fB\-\-no\-chroma\-me\fR option.
+.RE
+.RS 4
+.RE
+.IP "\fBthreads (\fR\fIthreads\fR\fB)\fR" 4
+.IX Item "threads (threads)"
+.PD 0
+.IP "\fBthread_type\fR" 4
+.IX Item "thread_type"
+.PD
+Set multithreading technique. Possible values:
+.RS 4
+.IP "\fBslice\fR" 4
+.IX Item "slice"
+Slice-based multithreading. It generates the same effect as
+\&\fBx264\fR's \fB\-\-sliced\-threads\fR option.
+.IP "\fBframe\fR" 4
+.IX Item "frame"
+Frame-based multithreading.
+.RE
+.RS 4
+.RE
+.IP "\fBflags\fR" 4
+.IX Item "flags"
+Set encoding flags. It can be used to disable closed \s-1GOP\s0 and enable
+open \s-1GOP\s0 by setting it to \f(CW\*(C`\-cgop\*(C'\fR. The result is similar to
+the behavior of \fBx264\fR's \fB\-\-open\-gop\fR option.
+.IP "\fBrc_init_occupancy (\fR\fIvbv-init\fR\fB)\fR" 4
+.IX Item "rc_init_occupancy (vbv-init)"
+.PD 0
+.IP "\fBpreset (\fR\fIpreset\fR\fB)\fR" 4
+.IX Item "preset (preset)"
+.PD
+Set the encoding preset.
+.IP "\fBtune (\fR\fItune\fR\fB)\fR" 4
+.IX Item "tune (tune)"
+Set tuning of the encoding params.
+.IP "\fBprofile (\fR\fIprofile\fR\fB)\fR" 4
+.IX Item "profile (profile)"
+Set profile restrictions.
+.IP "\fBfastfirstpass\fR" 4
+.IX Item "fastfirstpass"
+Enable fast settings when encoding first pass, when set to 1. When set
+to 0, it has the same effect of \fBx264\fR's
+\&\fB\-\-slow\-firstpass\fR option.
+.IP "\fBcrf (\fR\fIcrf\fR\fB)\fR" 4
+.IX Item "crf (crf)"
+Set the quality for constant quality mode.
+.IP "\fBcrf_max (\fR\fIcrf-max\fR\fB)\fR" 4
+.IX Item "crf_max (crf-max)"
+In \s-1CRF\s0 mode, prevents \s-1VBV\s0 from lowering quality beyond this point.
+.IP "\fBqp (\fR\fIqp\fR\fB)\fR" 4
+.IX Item "qp (qp)"
+Set constant quantization rate control method parameter.
+.IP "\fBaq-mode (\fR\fIaq-mode\fR\fB)\fR" 4
+.IX Item "aq-mode (aq-mode)"
+Set \s-1AQ\s0 method. Possible values:
+.RS 4
+.IP "\fBnone (\fR\fI0\fR\fB)\fR" 4
+.IX Item "none (0)"
+Disabled.
+.IP "\fBvariance (\fR\fI1\fR\fB)\fR" 4
+.IX Item "variance (1)"
 Variance \s-1AQ\s0 (complexity mask).
-.IP "\fBautovariance\fR" 4
-.IX Item "autovariance"
+.IP "\fBautovariance (\fR\fI2\fR\fB)\fR" 4
+.IX Item "autovariance (2)"
 Auto-variance \s-1AQ\s0 (experimental).
 .RE
 .RS 4
 .RE
-.IP "\fB\-aq\-strength\fR \fIfloat\fR" 4
-.IX Item "-aq-strength float"
-\&\s-1AQ\s0 strength, reduces blocking and blurring in flat and textured areas.
-.IP "\fB\-psy\fR \fIinteger\fR" 4
-.IX Item "-psy integer"
-Use psychovisual optimizations.
-.IP "\fB\-psy\-rd\fR \fIstring\fR" 4
-.IX Item "-psy-rd string"
-Strength of psychovisual optimization, in <psy\-rd>:<psy\-trellis> format.
-.IP "\fB\-rc\-lookahead\fR \fIinteger\fR" 4
-.IX Item "-rc-lookahead integer"
-Number of frames to look ahead for frametype and ratecontrol.
-.IP "\fB\-weightb\fR \fIinteger\fR" 4
-.IX Item "-weightb integer"
-Weighted prediction for B\-frames.
-.IP "\fB\-weightp\fR \fIinteger\fR" 4
-.IX Item "-weightp integer"
-Weighted prediction analysis method.
-.Sp
-Possible values:
+.IP "\fBaq-strength (\fR\fIaq-strength\fR\fB)\fR" 4
+.IX Item "aq-strength (aq-strength)"
+Set \s-1AQ\s0 strength, reduce blocking and blurring in flat and textured areas.
+.IP "\fBpsy\fR" 4
+.IX Item "psy"
+Use psychovisual optimizations when set to 1. When set to 0, it has the
+same effect as \fBx264\fR's \fB\-\-no\-psy\fR option.
+.IP "\fBpsy-rd  (\fR\fIpsy-rd\fR\fB)\fR" 4
+.IX Item "psy-rd  (psy-rd)"
+Set strength of psychovisual optimization, in
+\&\fIpsy-rd\fR:\fIpsy-trellis\fR format.
+.IP "\fBrc-lookahead (\fR\fIrc-lookahead\fR\fB)\fR" 4
+.IX Item "rc-lookahead (rc-lookahead)"
+Set number of frames to look ahead for frametype and ratecontrol.
+.IP "\fBweightb\fR" 4
+.IX Item "weightb"
+Enable weighted prediction for B\-frames when set to 1. When set to 0,
+it has the same effect as \fBx264\fR's \fB\-\-no\-weightb\fR option.
+.IP "\fBweightp (\fR\fIweightp\fR\fB)\fR" 4
+.IX Item "weightp (weightp)"
+Set weighted prediction method for P\-frames. Possible values:
 .RS 4
-.IP "\fBnone\fR" 4
-.IX Item "none"
-.PD 0
-.IP "\fBsimple\fR" 4
-.IX Item "simple"
-.IP "\fBsmart\fR" 4
-.IX Item "smart"
+.IP "\fBnone (\fR\fI0\fR\fB)\fR" 4
+.IX Item "none (0)"
+Disabled
+.IP "\fBsimple (\fR\fI1\fR\fB)\fR" 4
+.IX Item "simple (1)"
+Enable only weighted refs
+.IP "\fBsmart (\fR\fI2\fR\fB)\fR" 4
+.IX Item "smart (2)"
+Enable both weighted refs and duplicates
 .RE
 .RS 4
 .RE
-.IP "\fB\-ssim\fR \fIinteger\fR" 4
-.IX Item "-ssim integer"
-.PD
-Calculate and print \s-1SSIM\s0 stats.
-.IP "\fB\-intra\-refresh\fR \fIinteger\fR" 4
-.IX Item "-intra-refresh integer"
-Use Periodic Intra Refresh instead of \s-1IDR\s0 frames.
-.IP "\fB\-b\-bias\fR \fIinteger\fR" 4
-.IX Item "-b-bias integer"
-Influences how often B\-frames are used.
-.IP "\fB\-b\-pyramid\fR \fIinteger\fR" 4
-.IX Item "-b-pyramid integer"
-Keep some B\-frames as references.
-.Sp
-Possible values:
+.IP "\fBssim (\fR\fIssim\fR\fB)\fR" 4
+.IX Item "ssim (ssim)"
+Enable calculation and printing \s-1SSIM\s0 stats after the encoding.
+.IP "\fBintra-refresh (\fR\fIintra-refresh\fR\fB)\fR" 4
+.IX Item "intra-refresh (intra-refresh)"
+Enable the use of Periodic Intra Refresh instead of \s-1IDR\s0 frames when set
+to 1.
+.IP "\fBbluray-compat (\fR\fIbluray-compat\fR\fB)\fR" 4
+.IX Item "bluray-compat (bluray-compat)"
+Configure the encoder to be compatible with the bluray standard.
+It is a shorthand for setting \*(L"bluray\-compat=1 force\-cfr=1\*(R".
+.IP "\fBb\-bias (\fR\fIb\-bias\fR\fB)\fR" 4
+.IX Item "b-bias (b-bias)"
+Set the influence on how often B\-frames are used.
+.IP "\fBb\-pyramid (\fR\fIb\-pyramid\fR\fB)\fR" 4
+.IX Item "b-pyramid (b-pyramid)"
+Set method for keeping of some B\-frames as references. Possible values:
 .RS 4
-.IP "\fBnone\fR" 4
-.IX Item "none"
-.PD 0
-.IP "\fBstrict\fR" 4
-.IX Item "strict"
-.PD
+.IP "\fBnone (\fR\fInone\fR\fB)\fR" 4
+.IX Item "none (none)"
+Disabled.
+.IP "\fBstrict (\fR\fIstrict\fR\fB)\fR" 4
+.IX Item "strict (strict)"
 Strictly hierarchical pyramid.
-.IP "\fBnormal\fR" 4
-.IX Item "normal"
+.IP "\fBnormal (\fR\fInormal\fR\fB)\fR" 4
+.IX Item "normal (normal)"
 Non-strict (not Blu-ray compatible).
 .RE
 .RS 4
 .RE
-.IP "\fB\-mixed\-refs\fR \fIinteger\fR" 4
-.IX Item "-mixed-refs integer"
-One reference per partition, as opposed to one reference per macroblock.
-.IP "\fB\-8x8dct\fR \fIinteger\fR" 4
-.IX Item "-8x8dct integer"
-High profile 8x8 transform.
-.IP "\fB\-fast\-pskip\fR \fIinteger\fR" 4
-.IX Item "-fast-pskip integer"
-.PD 0
-.IP "\fB\-aud\fR \fIinteger\fR" 4
-.IX Item "-aud integer"
-.PD
-Use access unit delimiters.
-.IP "\fB\-mbtree\fR \fIinteger\fR" 4
-.IX Item "-mbtree integer"
-Use macroblock tree ratecontrol.
-.IP "\fB\-deblock\fR \fIstring\fR" 4
-.IX Item "-deblock string"
-Loop filter parameters, in <alpha:beta> form.
-.IP "\fB\-cplxblur\fR \fIfloat\fR" 4
-.IX Item "-cplxblur float"
-Reduce fluctuations in \s-1QP\s0 (before curve compression).
-.IP "\fB\-partitions\fR \fIstring\fR" 4
-.IX Item "-partitions string"
-A comma-separated list of partitions to consider, possible values: p8x8, p4x4, b8x8, i8x8, i4x4, none, all.
-.IP "\fB\-direct\-pred\fR \fIinteger\fR" 4
-.IX Item "-direct-pred integer"
-Direct \s-1MV\s0 prediction mode
-.Sp
+.IP "\fBmixed-refs\fR" 4
+.IX Item "mixed-refs"
+Enable the use of one reference per partition, as opposed to one
+reference per macroblock when set to 1. When set to 0, it has the
+same effect as \fBx264\fR's \fB\-\-no\-mixed\-refs\fR option.
+.IP "\fB8x8dct\fR" 4
+.IX Item "8x8dct"
+Enable adaptive spatial transform (high profile 8x8 transform)
+when set to 1. When set to 0, it has the same effect as
+\&\fBx264\fR's \fB\-\-no\-8x8dct\fR option.
+.IP "\fBfast-pskip\fR" 4
+.IX Item "fast-pskip"
+Enable early \s-1SKIP\s0 detection on P\-frames when set to 1. When set
+to 0, it has the same effect as \fBx264\fR's
+\&\fB\-\-no\-fast\-pskip\fR option.
+.IP "\fBaud (\fR\fIaud\fR\fB)\fR" 4
+.IX Item "aud (aud)"
+Enable use of access unit delimiters when set to 1.
+.IP "\fBmbtree\fR" 4
+.IX Item "mbtree"
+Enable use macroblock tree ratecontrol when set to 1. When set
+to 0, it has the same effect as \fBx264\fR's
+\&\fB\-\-no\-mbtree\fR option.
+.IP "\fBdeblock (\fR\fIdeblock\fR\fB)\fR" 4
+.IX Item "deblock (deblock)"
+Set loop filter parameters, in \fIalpha\fR:\fIbeta\fR form.
+.IP "\fBcplxblur (\fR\fIcplxblur\fR\fB)\fR" 4
+.IX Item "cplxblur (cplxblur)"
+Set fluctuations reduction in \s-1QP\s0 (before curve compression).
+.IP "\fBpartitions (\fR\fIpartitions\fR\fB)\fR" 4
+.IX Item "partitions (partitions)"
+Set partitions to consider as a comma-separated list of. Possible
+values in the list:
+.RS 4
+.IP "\fBp8x8\fR" 4
+.IX Item "p8x8"
+8x8 P\-frame partition.
+.IP "\fBp4x4\fR" 4
+.IX Item "p4x4"
+4x4 P\-frame partition.
+.IP "\fBb8x8\fR" 4
+.IX Item "b8x8"
+4x4 B\-frame partition.
+.IP "\fBi8x8\fR" 4
+.IX Item "i8x8"
+8x8 I\-frame partition.
+.IP "\fBi4x4\fR" 4
+.IX Item "i4x4"
+4x4 I\-frame partition.
+(Enabling \fBp4x4\fR requires \fBp8x8\fR to be enabled. Enabling
+\&\fBi8x8\fR requires adaptive spatial transform (\fB8x8dct\fR
+option) to be enabled.)
+.IP "\fBnone (\fR\fInone\fR\fB)\fR" 4
+.IX Item "none (none)"
+Do not consider any partitions.
+.IP "\fBall (\fR\fIall\fR\fB)\fR" 4
+.IX Item "all (all)"
+Consider every partition.
+.RE
+.RS 4
+.RE
+.IP "\fBdirect-pred (\fR\fIdirect\fR\fB)\fR" 4
+.IX Item "direct-pred (direct)"
+Set direct \s-1MV\s0 prediction mode. Possible values:
+.RS 4
+.IP "\fBnone (\fR\fInone\fR\fB)\fR" 4
+.IX Item "none (none)"
+Disable \s-1MV\s0 prediction.
+.IP "\fBspatial (\fR\fIspatial\fR\fB)\fR" 4
+.IX Item "spatial (spatial)"
+Enable spatial predicting.
+.IP "\fBtemporal (\fR\fItemporal\fR\fB)\fR" 4
+.IX Item "temporal (temporal)"
+Enable temporal predicting.
+.IP "\fBauto (\fR\fIauto\fR\fB)\fR" 4
+.IX Item "auto (auto)"
+Automatically decided.
+.RE
+.RS 4
+.RE
+.IP "\fBslice-max-size (\fR\fIslice-max-size\fR\fB)\fR" 4
+.IX Item "slice-max-size (slice-max-size)"
+Set the limit of the size of each slice in bytes. If not specified
+but \s-1RTP\s0 payload size (\fBps\fR) is specified, that is used.
+.IP "\fBstats (\fR\fIstats\fR\fB)\fR" 4
+.IX Item "stats (stats)"
+Set the file name for multi-pass stats.
+.IP "\fBnal-hrd (\fR\fInal-hrd\fR\fB)\fR" 4
+.IX Item "nal-hrd (nal-hrd)"
+Set signal \s-1HRD\s0 information (requires \fBvbv-bufsize\fR to be set).
 Possible values:
 .RS 4
-.IP "\fBnone\fR" 4
-.IX Item "none"
-.PD 0
-.IP "\fBspatial\fR" 4
-.IX Item "spatial"
-.IP "\fBtemporal\fR" 4
-.IX Item "temporal"
-.IP "\fBauto\fR" 4
-.IX Item "auto"
+.IP "\fBnone (\fR\fInone\fR\fB)\fR" 4
+.IX Item "none (none)"
+Disable \s-1HRD\s0 information signaling.
+.IP "\fBvbr (\fR\fIvbr\fR\fB)\fR" 4
+.IX Item "vbr (vbr)"
+Variable bit rate.
+.IP "\fBcbr (\fR\fIcbr\fR\fB)\fR" 4
+.IX Item "cbr (cbr)"
+Constant bit rate (not allowed in \s-1MP4\s0 container).
 .RE
 .RS 4
 .RE
-.IP "\fB\-slice\-max\-size\fR \fIinteger\fR" 4
-.IX Item "-slice-max-size integer"
-.PD
-Limit the size of each slice in bytes.
-.IP "\fB\-stats\fR \fIstring\fR" 4
-.IX Item "-stats string"
-Filename for 2 pass stats.
-.IP "\fB\-nal\-hrd\fR \fIinteger\fR" 4
-.IX Item "-nal-hrd integer"
-Signal \s-1HRD\s0 information (requires vbv-bufsize; cbr not allowed in .mp4).
+.IP "\fBx264opts (N.A.)\fR" 4
+.IX Item "x264opts (N.A.)"
+Set any x264 option, see \fBx264 \-\-fullhelp\fR for a list.
 .Sp
-Possible values:
-.RS 4
-.IP "\fBnone\fR" 4
-.IX Item "none"
-.PD 0
-.IP "\fBvbr\fR" 4
-.IX Item "vbr"
-.IP "\fBcbr\fR" 4
-.IX Item "cbr"
-.RE
-.RS 4
-.RE
-.IP "\fBx264opts\fR \fIoptions\fR" 4
-.IX Item "x264opts options"
-.PD
-Allow to set any x264 option, see \f(CW\*(C`x264 \-\-fullhelp\*(C'\fR for a list.
-.Sp
-\&\fIoptions\fR is a list of \fIkey\fR=\fIvalue\fR couples separated by
+Argument is a list of \fIkey\fR=\fIvalue\fR couples separated by
 \&\*(L":\*(R". In \fIfilter\fR and \fIpsy-rd\fR options that use \*(L":\*(R" as a separator
 themselves, use \*(L",\*(R" instead. They accept it as well since long ago but this
 is kept undocumented for some reason.
@@ -2972,19 +3632,197 @@ For example to specify libx264 encoding options with \fBffmpeg\fR:
 .Vb 1
 \&        ffmpeg \-i foo.mpg \-vcodec libx264 \-x264opts keyint=123:min\-keyint=20 \-an out.mkv
 .Ve
+.IP "\fBx264\-params (N.A.)\fR" 4
+.IX Item "x264-params (N.A.)"
+Override the x264 configuration using a :\-separated list of key=value
+parameters.
 .Sp
-For more information about libx264 and the supported options see:
-<\fBhttp://www.videolan.org/developers/x264.html\fR>
-.IP "\fB\-x264\-params\fR \fIstring\fR" 4
-.IX Item "-x264-params string"
-Override the x264 configuration using a :\-separated list of key=value parameters.
+This option is functionally the same as the \fBx264opts\fR, but is
+duplicated for compability with the Libav fork.
 .Sp
-.Vb 1
-\&        \-x264\-params level=30:bframes=0:weightp=0:cabac=0:ref=1:vbv\-maxrate=768:vbv\-bufsize=2000:analyse=all:me=umh:no\-fast\-pskip=1:subq=6:8x8dct=0:trellis=0
+For example to specify libx264 encoding options with \fBffmpeg\fR:
+.Sp
+.Vb 3
+\&        ffmpeg \-i INPUT \-c:v libx264 \-x264\-params level=30:bframes=0:weightp=0:\e
+\&        cabac=0:ref=1:vbv\-maxrate=768:vbv\-bufsize=2000:analyse=all:me=umh:\e
+\&        no\-fast\-pskip=1:subq=6:8x8dct=0:trellis=0 OUTPUT
 .Ve
 .PP
-Encoding avpresets for common usages are provided so they can be used with the
-general presets system (e.g. passing the \f(CW\*(C`\-pre\*(C'\fR option).
+Encoding ffpresets for common usages are provided so they can be used with the
+general presets system (e.g. passing the \fBpre\fR option).
+.SS "libxvid"
+.IX Subsection "libxvid"
+Xvid \s-1MPEG\-4\s0 Part 2 encoder wrapper.
+.PP
+This encoder requires the presence of the libxvidcore headers and library
+during configuration. You need to explicitly configure the build with
+\&\f(CW\*(C`\-\-enable\-libxvid \-\-enable\-gpl\*(C'\fR.
+.PP
+The native \f(CW\*(C`mpeg4\*(C'\fR encoder supports the \s-1MPEG\-4\s0 Part 2 format, so
+users can encode to this format without this library.
+.PP
+\fIOptions\fR
+.IX Subsection "Options"
+.PP
+The following options are supported by the libxvid wrapper. Some of
+the following options are listed but are not documented, and
+correspond to shared codec options. See the Codec
+Options chapter for their documentation. The other shared options
+which are not listed have no effect for the libxvid encoder.
+.IP "\fBb\fR" 4
+.IX Item "b"
+.PD 0
+.IP "\fBg\fR" 4
+.IX Item "g"
+.IP "\fBqmin\fR" 4
+.IX Item "qmin"
+.IP "\fBqmax\fR" 4
+.IX Item "qmax"
+.IP "\fBmpeg_quant\fR" 4
+.IX Item "mpeg_quant"
+.IP "\fBthreads\fR" 4
+.IX Item "threads"
+.IP "\fBbf\fR" 4
+.IX Item "bf"
+.IP "\fBb_qfactor\fR" 4
+.IX Item "b_qfactor"
+.IP "\fBb_qoffset\fR" 4
+.IX Item "b_qoffset"
+.IP "\fBflags\fR" 4
+.IX Item "flags"
+.PD
+Set specific encoding flags. Possible values:
+.RS 4
+.IP "\fBmv4\fR" 4
+.IX Item "mv4"
+Use four motion vector by macroblock.
+.IP "\fBaic\fR" 4
+.IX Item "aic"
+Enable high quality \s-1AC\s0 prediction.
+.IP "\fBgray\fR" 4
+.IX Item "gray"
+Only encode grayscale.
+.IP "\fBgmc\fR" 4
+.IX Item "gmc"
+Enable the use of global motion compensation (\s-1GMC\s0).
+.IP "\fBqpel\fR" 4
+.IX Item "qpel"
+Enable quarter-pixel motion compensation.
+.IP "\fBcgop\fR" 4
+.IX Item "cgop"
+Enable closed \s-1GOP\s0.
+.IP "\fBglobal_header\fR" 4
+.IX Item "global_header"
+Place global headers in extradata instead of every keyframe.
+.RE
+.RS 4
+.RE
+.IP "\fBtrellis\fR" 4
+.IX Item "trellis"
+.PD 0
+.IP "\fBme_method\fR" 4
+.IX Item "me_method"
+.PD
+Set motion estimation method. Possible values in decreasing order of
+speed and increasing order of quality:
+.RS 4
+.IP "\fBzero\fR" 4
+.IX Item "zero"
+Use no motion estimation (default).
+.IP "\fBphods\fR" 4
+.IX Item "phods"
+.PD 0
+.IP "\fBx1\fR" 4
+.IX Item "x1"
+.IP "\fBlog\fR" 4
+.IX Item "log"
+.PD
+Enable advanced diamond zonal search for 16x16 blocks and half-pixel
+refinement for 16x16 blocks. \fBx1\fR and \fBlog\fR are aliases for
+\&\fBphods\fR.
+.IP "\fBepzs\fR" 4
+.IX Item "epzs"
+Enable all of the things described above, plus advanced diamond zonal
+search for 8x8 blocks, half-pixel refinement for 8x8 blocks, and motion
+estimation on chroma planes.
+.IP "\fBfull\fR" 4
+.IX Item "full"
+Enable all of the things described above, plus extended 16x16 and 8x8
+blocks search.
+.RE
+.RS 4
+.RE
+.IP "\fBmbd\fR" 4
+.IX Item "mbd"
+Set macroblock decision algorithm. Possible values in the increasing
+order of quality:
+.RS 4
+.IP "\fBsimple\fR" 4
+.IX Item "simple"
+Use macroblock comparing function algorithm (default).
+.IP "\fBbits\fR" 4
+.IX Item "bits"
+Enable rate distortion-based half pixel and quarter pixel refinement for
+16x16 blocks.
+.IP "\fBrd\fR" 4
+.IX Item "rd"
+Enable all of the things described above, plus rate distortion-based
+half pixel and quarter pixel refinement for 8x8 blocks, and rate
+distortion-based search using square pattern.
+.RE
+.RS 4
+.RE
+.IP "\fBlumi_aq\fR" 4
+.IX Item "lumi_aq"
+Enable lumi masking adaptive quantization when set to 1. Default is 0
+(disabled).
+.IP "\fBvariance_aq\fR" 4
+.IX Item "variance_aq"
+Enable variance adaptive quantization when set to 1. Default is 0
+(disabled).
+.Sp
+When combined with \fBlumi_aq\fR, the resulting quality will not
+be better than any of the two specified individually. In other
+words, the resulting quality will be the worse one of the two
+effects.
+.IP "\fBssim\fR" 4
+.IX Item "ssim"
+Set structural similarity (\s-1SSIM\s0) displaying method. Possible values:
+.RS 4
+.IP "\fBoff\fR" 4
+.IX Item "off"
+Disable displaying of \s-1SSIM\s0 information.
+.IP "\fBavg\fR" 4
+.IX Item "avg"
+Output average \s-1SSIM\s0 at the end of encoding to stdout. The format of
+showing the average \s-1SSIM\s0 is:
+.Sp
+.Vb 1
+\&        Average SSIM: %f
+.Ve
+.Sp
+For users who are not familiar with C, \f(CW%f\fR means a float number, or
+a decimal (e.g. 0.939232).
+.IP "\fBframe\fR" 4
+.IX Item "frame"
+Output both per-frame \s-1SSIM\s0 data during encoding and average \s-1SSIM\s0 at
+the end of encoding to stdout. The format of per-frame information
+is:
+.Sp
+.Vb 1
+\&               SSIM: avg: %1.3f min: %1.3f max: %1.3f
+.Ve
+.Sp
+For users who are not familiar with C, \f(CW%1\fR.3f means a float number
+rounded to 3 digits after the dot (e.g. 0.932).
+.RE
+.RS 4
+.RE
+.IP "\fBssim_acc\fR" 4
+.IX Item "ssim_acc"
+Set \s-1SSIM\s0 accuracy. Valid options are integers within the range of
+0\-4, while 0 gives the most accurate result and 4 computes the
+fastest.
 .SS "png"
 .IX Subsection "png"
 \&\s-1PNG\s0 image encoder.

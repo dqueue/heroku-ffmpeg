@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "FFSERVER 1"
-.TH FFSERVER 1 "2013-07-13" " " " "
+.TH FFSERVER 1 "2013-11-13" " " " "
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -401,10 +401,18 @@ Show license.
 .IP "\fB\-h, \-?, \-help, \-\-help [\fR\fIarg\fR\fB]\fR" 4
 .IX Item "-h, -?, -help, --help [arg]"
 Show help. An optional parameter may be specified to print help about a specific
-item.
+item. If no argument is specified, only basic (non advanced) tool
+options are shown.
 .Sp
 Possible values of \fIarg\fR are:
 .RS 4
+.IP "\fBlong\fR" 4
+.IX Item "long"
+Print advanced tool options in addition to the basic tool options.
+.IP "\fBfull\fR" 4
+.IX Item "full"
+Print complete list of options, including shared and private options
+for encoders, decoders, demuxers, muxers, filters, etc.
 .IP "\fBdecoder=\fR\fIdecoder_name\fR" 4
 .IX Item "decoder=decoder_name"
 Print detailed information about the decoder named \fIdecoder_name\fR. Use the
@@ -464,6 +472,9 @@ Show available sample formats.
 .IP "\fB\-layouts\fR" 4
 .IX Item "-layouts"
 Show channel names and standard channel layouts.
+.IP "\fB\-colors\fR" 4
+.IX Item "-colors"
+Show recognized color names.
 .IP "\fB\-loglevel [repeat+]\fR\fIloglevel\fR \fB| \-v [repeat+]\fR\fIloglevel\fR" 4
 .IX Item "-loglevel [repeat+]loglevel | -v [repeat+]loglevel"
 Set the logging level used by the library.
@@ -677,14 +688,15 @@ muxer:
 \&        ffmpeg \-i input.flac \-id3v2_version 3 out.mp3
 .Ve
 .PP
-All codec AVOptions are obviously per-stream, so the chapter on stream
-specifiers applies to them
+All codec AVOptions are per-stream, and thus a stream specifier
+should be attached to them.
 .PP
-Note \fB\-nooption\fR syntax cannot be used for boolean AVOptions,
-use \fB\-option 0\fR/\fB\-option 1\fR.
+Note: the \fB\-nooption\fR syntax cannot be used for boolean
+AVOptions, use \fB\-option 0\fR/\fB\-option 1\fR.
 .PP
-Note2 old undocumented way of specifying per-stream AVOptions by prepending
-v/a/s to the options name is now obsolete and will be removed soon.
+Note: the old undocumented way of specifying per-stream AVOptions by
+prepending v/a/s to the options name is now obsolete and will be
+removed soon.
 .SS "Main options"
 .IX Subsection "Main options"
 .IP "\fB\-f\fR \fIconfigfile\fR" 4

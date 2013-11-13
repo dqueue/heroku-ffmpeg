@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "FFMPEG 1"
-.TH FFMPEG 1 "2013-07-13" " " " "
+.TH FFMPEG 1 "2013-11-13" " " " "
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -378,10 +378,18 @@ Show license.
 .IP "\fB\-h, \-?, \-help, \-\-help [\fR\fIarg\fR\fB]\fR" 4
 .IX Item "-h, -?, -help, --help [arg]"
 Show help. An optional parameter may be specified to print help about a specific
-item.
+item. If no argument is specified, only basic (non advanced) tool
+options are shown.
 .Sp
 Possible values of \fIarg\fR are:
 .RS 4
+.IP "\fBlong\fR" 4
+.IX Item "long"
+Print advanced tool options in addition to the basic tool options.
+.IP "\fBfull\fR" 4
+.IX Item "full"
+Print complete list of options, including shared and private options
+for encoders, decoders, demuxers, muxers, filters, etc.
 .IP "\fBdecoder=\fR\fIdecoder_name\fR" 4
 .IX Item "decoder=decoder_name"
 Print detailed information about the decoder named \fIdecoder_name\fR. Use the
@@ -441,6 +449,9 @@ Show available sample formats.
 .IP "\fB\-layouts\fR" 4
 .IX Item "-layouts"
 Show channel names and standard channel layouts.
+.IP "\fB\-colors\fR" 4
+.IX Item "-colors"
+Show recognized color names.
 .IP "\fB\-loglevel [repeat+]\fR\fIloglevel\fR \fB| \-v [repeat+]\fR\fIloglevel\fR" 4
 .IX Item "-loglevel [repeat+]loglevel | -v [repeat+]loglevel"
 Set the logging level used by the library.
@@ -654,14 +665,15 @@ muxer:
 \&        ffmpeg \-i input.flac \-id3v2_version 3 out.mp3
 .Ve
 .PP
-All codec AVOptions are obviously per-stream, so the chapter on stream
-specifiers applies to them
+All codec AVOptions are per-stream, and thus a stream specifier
+should be attached to them.
 .PP
-Note \fB\-nooption\fR syntax cannot be used for boolean AVOptions,
-use \fB\-option 0\fR/\fB\-option 1\fR.
+Note: the \fB\-nooption\fR syntax cannot be used for boolean
+AVOptions, use \fB\-option 0\fR/\fB\-option 1\fR.
 .PP
-Note2 old undocumented way of specifying per-stream AVOptions by prepending
-v/a/s to the options name is now obsolete and will be removed soon.
+Note: the old undocumented way of specifying per-stream AVOptions by
+prepending v/a/s to the options name is now obsolete and will be
+removed soon.
 .SS "Main options"
 .IX Subsection "Main options"
 .IP "\fB\-f\fR \fIfmt\fR \fB(\fR\fIinput/output\fR\fB)\fR" 4
@@ -724,9 +736,15 @@ Set the file size limit, expressed in bytes.
 .IP "\fB\-ss\fR \fIposition\fR \fB(\fR\fIinput/output\fR\fB)\fR" 4
 .IX Item "-ss position (input/output)"
 When used as an input option (before \f(CW\*(C`\-i\*(C'\fR), seeks in this input file to
-\&\fIposition\fR. When used as an output option (before an output filename),
-decodes but discards input until the timestamps reach \fIposition\fR. This is
-slower, but more accurate.
+\&\fIposition\fR. Note the in most formats it is not possible to seek exactly, so
+\&\fBffmpeg\fR will seek to the closest seek point before \fIposition\fR.
+When transcoding and \fB\-accurate_seek\fR is enabled (the default), this
+extra segment between the seek point and \fIposition\fR will be decoded and
+discarded. When doing stream copy or when \fB\-noaccurate_seek\fR is used, it
+will be preserved.
+.Sp
+When used as an output option (before an output filename), decodes but discards
+input until the timestamps reach \fIposition\fR.
 .Sp
 \&\fIposition\fR may be either in seconds or in \f(CW\*(C`hh:mm:ss[.xxx]\*(C'\fR form.
 .IP "\fB\-itsoffset\fR \fIoffset\fR \fB(\fR\fIinput\fR\fB)\fR" 4
@@ -1374,13 +1392,12 @@ When dumping packets, also dump the payload.
 .IP "\fB\-re (\fR\fIinput\fR\fB)\fR" 4
 .IX Item "-re (input)"
 Read input at native frame rate. Mainly used to simulate a grab device.
+or live input stream (e.g. when reading from a file). Should not be used
+with actual grab devices or live input streams (where it can cause packet
+loss).
 By default \fBffmpeg\fR attempts to read the input(s) as fast as possible.
 This option will slow down the reading of the input(s) to the native frame rate
-of the input(s). It is useful for real-time output (e.g. live streaming). If
-your input(s) is coming from some other live streaming source (through \s-1HTTP\s0 or
-\&\s-1UDP\s0 for example) the server might already be in real-time, thus the option will
-likely not be required. On the other hand, this is meaningful if your input(s)
-is a file you are trying to push in real-time.
+of the input(s). It is useful for real-time output (e.g. live streaming).
 .IP "\fB\-loop_input\fR" 4
 .IX Item "-loop_input"
 Loop over the input stream. Currently it works only for image
@@ -1584,6 +1601,12 @@ outputs. Equivalent to \fB\-filter_complex\fR.
 This option is similar to \fB\-filter_complex\fR, the only difference is that
 its argument is the name of the file from which a complex filtergraph
 description is to be read.
+.IP "\fB\-accurate_seek (\fR\fIinput\fR\fB)\fR" 4
+.IX Item "-accurate_seek (input)"
+This option enables or disables accurate seeking in input files with the
+\&\fB\-ss\fR option. It is enabled by default, so seeking is accurate when
+transcoding. Use \fB\-noaccurate_seek\fR to disable it, which may be useful
+e.g. when copying some streams and transcoding the others.
 .IP "\fB\-override_ffserver (\fR\fIglobal\fR\fB)\fR" 4
 .IX Item "-override_ffserver (global)"
 Overrides the input specifications from ffserver. Using this option you can
@@ -1646,7 +1669,7 @@ then it will search for the file \fIlibvpx\-1080p.ffpreset\fR.
 .SH "TIPS"
 .IX Header "TIPS"
 .IP "\(bu" 4
-For streaming at very low bitrate application, use a low frame rate
+For streaming at very low bitrates, use a low frame rate
 and a small \s-1GOP\s0 size. This is especially true for RealVideo where
 the Linux player does not seem to be very fast, so it can miss
 frames. An example is:
@@ -1715,14 +1738,14 @@ standard mixer.
 Grab the X11 display with ffmpeg via
 .PP
 .Vb 1
-\&        ffmpeg \-f x11grab \-s cif \-r 25 \-i :0.0 /tmp/out.mpg
+\&        ffmpeg \-f x11grab \-video_size cif \-framerate 25 \-i :0.0 /tmp/out.mpg
 .Ve
 .PP
 0.0 is display.screen number of your X11 server, same as
 the \s-1DISPLAY\s0 environment variable.
 .PP
 .Vb 1
-\&        ffmpeg \-f x11grab \-s cif \-r 25 \-i :0.0+10,20 /tmp/out.mpg
+\&        ffmpeg \-f x11grab \-video_size cif \-framerate 25 \-i :0.0+10,20 /tmp/out.mpg
 .Ve
 .PP
 0.0 is display.screen number of your X11 server, same as the \s-1DISPLAY\s0 environment

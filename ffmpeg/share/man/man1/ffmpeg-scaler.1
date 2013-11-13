@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "FFMPEG-SCALER 1"
-.TH FFMPEG-SCALER 1 "2013-07-13" " " " "
+.TH FFMPEG-SCALER 1 "2013-11-13" " " " "
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -133,7 +133,7 @@
 ffmpeg\-scaler \- FFmpeg video scaling and pixel format converter
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
-The FFmpeg rescaler provides an high-level interface to the libswscale
+The FFmpeg rescaler provides a high-level interface to the libswscale
 library image conversion utilities. In particular it allows to perform
 image rescaling and pixel format conversion.
 .SH "SCALER OPTIONS"
@@ -231,6 +231,26 @@ Select destination range.
 Set scaling algorithm parameters. The specified values are specific of
 some scaling algorithms and ignored by others. The specified values
 are floating point number values.
+.IP "\fBsws_dither\fR" 4
+.IX Item "sws_dither"
+Set the dithering algorithm. Accepts one of the following
+values. Default value is \fBauto\fR.
+.RS 4
+.IP "\fBauto\fR" 4
+.IX Item "auto"
+automatic choice
+.IP "\fBnone\fR" 4
+.IX Item "none"
+no dithering
+.IP "\fBbayer\fR" 4
+.IX Item "bayer"
+bayer dither
+.IP "\fBed\fR" 4
+.IX Item "ed"
+error diffusion dither
+.RE
+.RS 4
+.RE
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 \&\fIffmpeg\fR\|(1), \fIffplay\fR\|(1), \fIffprobe\fR\|(1), \fIffserver\fR\|(1), \fIlibswscale\fR\|(3)

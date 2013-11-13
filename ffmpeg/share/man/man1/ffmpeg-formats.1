@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "FFMPEG-FORMATS 1"
-.TH FFMPEG-FORMATS 1 "2013-07-13" " " " "
+.TH FFMPEG-FORMATS 1 "2013-11-13" " " " "
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -206,6 +206,10 @@ Reduce the latency introduced by optional buffering
 .RE
 .RS 4
 .RE
+.IP "\fBseek2any\fR \fIinteger\fR \fB(\fR\fIinput\fR\fB)\fR" 4
+.IX Item "seek2any integer (input)"
+Allow seeking to non-keyframes on demuxer level when supported if set to 1.
+Default is 0.
 .IP "\fBanalyzeduration\fR \fIinteger\fR \fB(\fR\fIinput\fR\fB)\fR" 4
 .IX Item "analyzeduration integer (input)"
 Specify how many microseconds are analyzed to probe the input. A
@@ -296,6 +300,13 @@ been without shifting.
 .Sp
 Also note that this affects only leading negative timestamps, and not
 non-monotonic negative timestamps.
+.IP "\fBskip_initial_bytes\fR \fIinteger\fR \fB(\fR\fIinput\fR\fB)\fR" 4
+.IX Item "skip_initial_bytes integer (input)"
+Set number of bytes to skip before reading header and frames if set to 1.
+Default is 0.
+.IP "\fBcorrect_ts_overflow\fR \fIinteger\fR \fB(\fR\fIinput\fR\fB)\fR" 4
+.IX Item "correct_ts_overflow integer (input)"
+Correct single timestamp overflows if set to 1. Default is 1.
 .IP "\fBflush_packets\fR \fIinteger\fR \fB(\fR\fIoutput\fR\fB)\fR" 4
 .IX Item "flush_packets integer (output)"
 Flush the underlying I/O stream after each packet. Default 1 enables it, and
@@ -331,7 +342,7 @@ The exact semantics of stream specifiers is defined by the
 \&\fIlibavformat/avformat.h\fR header.
 .SH "DEMUXERS"
 .IX Header "DEMUXERS"
-Demuxers are configured elements in FFmpeg which allow to read the
+Demuxers are configured elements in FFmpeg that can read the
 multimedia streams from a particular type of file.
 .PP
 When you configure your FFmpeg build, all the supported demuxers
@@ -357,6 +368,14 @@ the discard flags on AVStreams (by pressing 'a' or 'v' in ffplay),
 the caller can decide which variant streams to actually receive.
 The total bitrate of the variant that the stream belongs to is
 available in a metadata key named \*(L"variant_bitrate\*(R".
+.SS "asf"
+.IX Subsection "asf"
+Advanced Systems Format demuxer.
+.PP
+This demuxer is used to demux \s-1ASF\s0 files and \s-1MMS\s0 network streams.
+.IP "\fB\-no_resync_search\fR \fIbool\fR" 4
+.IX Item "-no_resync_search bool"
+Do not try to resynchronize by looking for a certain optional start code.
 .SS "concat"
 .IX Subsection "concat"
 Virtual concatenation script demuxer.
@@ -426,6 +445,14 @@ If set to 0, any file name is accepted.
 .Sp
 The default is \-1, it is equivalent to 1 if the format was automatically
 probed and 0 otherwise.
+.SS "flv"
+.IX Subsection "flv"
+Adobe Flash Video Format demuxer.
+.PP
+This demuxer is used to demux \s-1FLV\s0 files and \s-1RTMP\s0 network streams.
+.IP "\fB\-flv_metadata\fR \fIbool\fR" 4
+.IX Item "-flv_metadata bool"
+Allocate the streams according to the onMetaData array content.
 .SS "libgme"
 .IX Subsection "libgme"
 The Game Music Emu library is a collection of video game music file emulators.
@@ -571,21 +598,30 @@ sequence \fIimg\-001.jpeg\fR, \fIimg\-002.jpeg\fR, ..., assuming an
 input frame rate of 10 frames per second:
 .Sp
 .Vb 1
-\&        ffmpeg \-i \*(Aqimg\-%03d.jpeg\*(Aq \-r 10 out.mkv
+\&        ffmpeg \-framerate 10 \-i \*(Aqimg\-%03d.jpeg\*(Aq out.mkv
 .Ve
 .IP "\(bu" 4
 As above, but start by reading from a file with index 100 in the sequence:
 .Sp
 .Vb 1
-\&        ffmpeg \-start_number 100 \-i \*(Aqimg\-%03d.jpeg\*(Aq \-r 10 out.mkv
+\&        ffmpeg \-framerate 10 \-start_number 100 \-i \*(Aqimg\-%03d.jpeg\*(Aq out.mkv
 .Ve
 .IP "\(bu" 4
 Read images matching the \*(L"*.png\*(R" glob pattern , that is all the files
 terminating with the \*(L".png\*(R" suffix:
 .Sp
 .Vb 1
-\&        ffmpeg \-pattern_type glob \-i "*.png" \-r 10 out.mkv
+\&        ffmpeg \-framerate 10 \-pattern_type glob \-i "*.png" out.mkv
 .Ve
+.SS "mpegts"
+.IX Subsection "mpegts"
+\&\s-1MPEG\-2\s0 transport stream demuxer.
+.IP "\fBfix_teletext_pts\fR" 4
+.IX Item "fix_teletext_pts"
+Overrides teletext packet \s-1PTS\s0 and \s-1DTS\s0 values with the timestamps calculated
+from the \s-1PCR\s0 of the first program which the teletext stream is part of and is
+not discarded. Default value is 1, set this option to 0 if you want your
+teletext packet \s-1PTS\s0 and \s-1DTS\s0 values untouched.
 .SS "rawvideo"
 .IX Subsection "rawvideo"
 Raw video demuxer.
@@ -808,6 +844,38 @@ To print the information to stdout, use the command:
 .Ve
 .PP
 See also the md5 muxer.
+.SS "gif"
+.IX Subsection "gif"
+Animated \s-1GIF\s0 muxer.
+.PP
+It accepts the following options:
+.IP "\fBloop\fR" 4
+.IX Item "loop"
+Set the number of times to loop the output. Use \f(CW\*(C`\-1\*(C'\fR for no loop, \f(CW0\fR
+for looping indefinitely (default).
+.IP "\fBfinal_delay\fR" 4
+.IX Item "final_delay"
+Force the delay (expressed in centiseconds) after the last frame. Each frame
+ends with a delay until the next frame. The default is \f(CW\*(C`\-1\*(C'\fR, which is a
+special value to tell the muxer to re-use the previous delay. In case of a
+loop, you might want to customize this value to mark a pause for instance.
+.PP
+For example, to encode a gif looping 10 times, with a 5 seconds delay between
+the loops:
+.PP
+.Vb 1
+\&        ffmpeg \-i INPUT \-loop 10 \-final_delay 500 out.gif
+.Ve
+.PP
+Note 1: if you wish to extract the frames in separate \s-1GIF\s0 files, you need to
+force the image2 muxer:
+.PP
+.Vb 1
+\&        ffmpeg \-i INPUT \-c:v gif \-f image2 "out%d.gif"
+.Ve
+.PP
+Note 2: the \s-1GIF\s0 format has a very small time base: the delay between two frames
+can not be smaller than one centi second.
 .SS "hls"
 .IX Subsection "hls"
 Apple \s-1HTTP\s0 Live Streaming muxer that segments MPEG-TS according to
@@ -914,7 +982,7 @@ Note also that the pattern must not necessarily contain \*(L"%d\*(R" or
 .IP "\fBstart_number\fR \fInumber\fR" 4
 .IX Item "start_number number"
 Start the sequence from \fInumber\fR. Default value is 1. Must be a
-positive number.
+non-negative number.
 .IP "\fB\-update\fR \fInumber\fR" 4
 .IX Item "-update number"
 If \fInumber\fR is nonzero, the filename will always be interpreted as just a
@@ -1041,8 +1109,10 @@ You can print the \s-1MD5\s0 to stdout with the command:
 .Ve
 .PP
 See also the framemd5 muxer.
-.SS "\s-1MOV/MP4/ISMV\s0"
-.IX Subsection "MOV/MP4/ISMV"
+.SS "mov/mp4/ismv"
+.IX Subsection "mov/mp4/ismv"
+\&\s-1MOV/MP4/ISMV\s0 (Smooth Streaming) muxer.
+.PP
 The mov/mp4/ismv muxer supports fragmentation. Normally, a \s-1MOV/MP4\s0
 file has all the metadata about all packets stored in one location
 (written at the end of the file, it can be moved to the start for
@@ -1110,8 +1180,8 @@ pair for each track, making it easier to separate tracks.
 This option is implicitly set when writing ismv (Smooth Streaming) files.
 .IP "\fB\-movflags faststart\fR" 4
 .IX Item "-movflags faststart"
-Run a second pass moving the moov atom on top of the file. This
-operation can take a while, and will not work in various situations such
+Run a second pass moving the index (moov atom) to the beginning of the file.
+This operation can take a while, and will not work in various situations such
 as fragmented output, thus it is not enabled by default.
 .IP "\fB\-movflags rtphint\fR" 4
 .IX Item "-movflags rtphint"
@@ -1185,6 +1255,46 @@ Set the first \s-1PID\s0 for \s-1PMT\s0 (default 0x1000, max 0x1f00).
 .IP "\fB\-mpegts_start_pid\fR \fInumber\fR" 4
 .IX Item "-mpegts_start_pid number"
 Set the first \s-1PID\s0 for data packets (default 0x0100, max 0x0f00).
+.IP "\fB\-mpegts_m2ts_mode\fR \fInumber\fR" 4
+.IX Item "-mpegts_m2ts_mode number"
+Enable m2ts mode if set to 1. Default value is \-1 which disables m2ts mode.
+.IP "\fB\-muxrate\fR \fInumber\fR" 4
+.IX Item "-muxrate number"
+Set muxrate.
+.IP "\fB\-pes_payload_size\fR \fInumber\fR" 4
+.IX Item "-pes_payload_size number"
+Set minimum \s-1PES\s0 packet payload in bytes.
+.IP "\fB\-mpegts_flags\fR \fIflags\fR" 4
+.IX Item "-mpegts_flags flags"
+Set flags (see below).
+.IP "\fB\-mpegts_copyts\fR \fInumber\fR" 4
+.IX Item "-mpegts_copyts number"
+Preserve original timestamps, if value is set to 1. Default value is \-1, which
+results in shifting timestamps so that they start from 0.
+.IP "\fB\-tables_version\fR \fInumber\fR" 4
+.IX Item "-tables_version number"
+Set \s-1PAT\s0, \s-1PMT\s0 and \s-1SDT\s0 version (default 0, valid values are from 0 to 31, inclusively).
+This option allows updating stream structure so that standard consumer may
+detect the change. To do so, reopen output AVFormatContext (in case of \s-1API\s0
+usage) or restart ffmpeg instance, cyclically changing tables_version value:
+.Sp
+.Vb 7
+\&        ffmpeg \-i source1.ts \-codec copy \-f mpegts \-tables_version 0 udp://1.1.1.1:1111
+\&        ffmpeg \-i source2.ts \-codec copy \-f mpegts \-tables_version 1 udp://1.1.1.1:1111
+\&        ...
+\&        ffmpeg \-i source3.ts \-codec copy \-f mpegts \-tables_version 31 udp://1.1.1.1:1111
+\&        ffmpeg \-i source1.ts \-codec copy \-f mpegts \-tables_version 0 udp://1.1.1.1:1111
+\&        ffmpeg \-i source2.ts \-codec copy \-f mpegts \-tables_version 1 udp://1.1.1.1:1111
+\&        ...
+.Ve
+.PP
+Option mpegts_flags may take a set of such flags:
+.IP "\fBresend_headers\fR" 4
+.IX Item "resend_headers"
+Reemit \s-1PAT/PMT\s0 before writing the next packet.
+.IP "\fBlatm\fR" 4
+.IX Item "latm"
+Use \s-1LATM\s0 packetization for \s-1AAC\s0.
 .PP
 The recognized metadata settings in mpegts muxer are \f(CW\*(C`service_provider\*(C'\fR
 and \f(CW\*(C`service_name\*(C'\fR. If they are not set the default for
@@ -1482,17 +1592,51 @@ leading or trailing spaces or any special character, it must be
 escaped (see the ``Quoting and escaping'' section in the ffmpeg-utils
 manual).
 .PP
-Options can be specified for each slave by prepending them as a list of
+Muxer options can be specified for each slave by prepending them as a list of
 \&\fIkey\fR=\fIvalue\fR pairs separated by ':', between square brackets. If
 the options values contain a special character or the ':' separator, they
 must be escaped; note that this is a second level escaping.
 .PP
-Example: encode something and both archive it in a WebM file and stream it
-as MPEG-TS over \s-1UDP\s0 (the streams need to be explicitly mapped):
+The following special options are also recognized:
+.IP "\fBf\fR" 4
+.IX Item "f"
+Specify the format name. Useful if it cannot be guessed from the
+output name suffix.
+.IP "\fBbsfs[/\fR\fIspec\fR\fB]\fR" 4
+.IX Item "bsfs[/spec]"
+Specify a list of bitstream filters to apply to the specified
+output. It is possible to specify to which streams a given bitstream
+filter applies, by appending a stream specifier to the option
+separated by \f(CW\*(C`/\*(C'\fR. If the stream specifier is not specified, the
+bistream filters will be applied to all streams in the output.
+.Sp
+Several bitstream filters can be specified, separated by \*(L",\*(R".
+.IP "\fBselect\fR" 4
+.IX Item "select"
+Select the streams that should be mapped to the slave output,
+specified by a stream specifier. If not specified, this defaults to
+all the input streams.
 .PP
+Some examples follow.
+.IP "\(bu" 4
+Encode something and both archive it in a WebM file and stream it
+as MPEG-TS over \s-1UDP\s0 (the streams need to be explicitly mapped):
+.Sp
 .Vb 2
 \&        ffmpeg \-i ... \-c:v libx264 \-c:a mp2 \-f tee \-map 0:v \-map 0:a
 \&          "archive\-20121107.mkv|[f=mpegts]udp://10.0.1.255:1234/"
+.Ve
+.IP "\(bu" 4
+Use \fBffmpeg\fR to encode the input, and send the output
+to three different destinations. The \f(CW\*(C`dump_extra\*(C'\fR bitstream
+filter is used to add extradata information to all the output video
+keyframes packets, as requested by the MPEG-TS format. The select
+option is applied to \fIout.aac\fR in order to make it contain only
+audio packets.
+.Sp
+.Vb 2
+\&        ffmpeg \-i ... \-map 0 \-flags +global_header \-c:v libx264 \-c:a aac \-strict experimental
+\&               \-f tee "[bsfs/v=dump_extra]out.ts|[movflags=+faststart]out.mp4|[select=a]out.aac"
 .Ve
 .PP
 Note: some codecs may need different options depending on the output format;

@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "FFMPEG-DEVICES 1"
-.TH FFMPEG-DEVICES 1 "2013-07-13" " " " "
+.TH FFMPEG-DEVICES 1 "2013-11-13" " " " "
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -616,100 +616,54 @@ For more information about \s-1OSS\s0 see:
 <\fBhttp://manuals.opensound.com/usersguide/dsp.html\fR>
 .SS "pulse"
 .IX Subsection "pulse"
-pulseaudio input device.
+PulseAudio input device.
 .PP
-To enable this input device during configuration you need libpulse-simple
-installed in your system.
+To enable this output device you need to configure FFmpeg with \f(CW\*(C`\-\-enable\-libpulse\*(C'\fR.
 .PP
 The filename to provide to the input device is a source device or the
 string \*(L"default\*(R"
 .PP
-To list the pulse source devices and their properties you can invoke
+To list the PulseAudio source devices and their properties you can invoke
 the command \fBpactl list sources\fR.
+.PP
+More information about PulseAudio can be found on <\fBhttp://www.pulseaudio.org\fR>.
+.PP
+\fIOptions\fR
+.IX Subsection "Options"
+.IP "\fBserver\fR" 4
+.IX Item "server"
+Connect to a specific PulseAudio server, specified by an \s-1IP\s0 address.
+Default server is used when not provided.
+.IP "\fBname\fR" 4
+.IX Item "name"
+Specify the application name PulseAudio will use when showing active clients,
+by default it is the \f(CW\*(C`LIBAVFORMAT_IDENT\*(C'\fR string.
+.IP "\fBstream_name\fR" 4
+.IX Item "stream_name"
+Specify the stream name PulseAudio will use when showing active streams,
+by default it is \*(L"record\*(R".
+.IP "\fBsample_rate\fR" 4
+.IX Item "sample_rate"
+Specify the samplerate in Hz, by default 48kHz is used.
+.IP "\fBchannels\fR" 4
+.IX Item "channels"
+Specify the channels in use, by default 2 (stereo) is set.
+.IP "\fBframe_size\fR" 4
+.IX Item "frame_size"
+Specify the number of bytes per frame, by default it is set to 1024.
+.IP "\fBfragment_size\fR" 4
+.IX Item "fragment_size"
+Specify the minimal buffering fragment in PulseAudio, it will affect the
+audio latency. By default it is unset.
+.PP
+\fIExamples\fR
+.IX Subsection "Examples"
+.PP
+Record a stream from default device:
 .PP
 .Vb 1
 \&        ffmpeg \-f pulse \-i default /tmp/pulse.wav
 .Ve
-.PP
-\fI\fIserver\fI AVOption\fR
-.IX Subsection "server AVOption"
-.PP
-The syntax is:
-.PP
-.Vb 1
-\&        \-server <server name>
-.Ve
-.PP
-Connects to a specific server.
-.PP
-\fI\fIname\fI AVOption\fR
-.IX Subsection "name AVOption"
-.PP
-The syntax is:
-.PP
-.Vb 1
-\&        \-name <application name>
-.Ve
-.PP
-Specify the application name pulse will use when showing active clients,
-by default it is the \s-1LIBAVFORMAT_IDENT\s0 string
-.PP
-\fI\fIstream_name\fI AVOption\fR
-.IX Subsection "stream_name AVOption"
-.PP
-The syntax is:
-.PP
-.Vb 1
-\&        \-stream_name <stream name>
-.Ve
-.PP
-Specify the stream name pulse will use when showing active streams,
-by default it is \*(L"record\*(R"
-.PP
-\fI\fIsample_rate\fI AVOption\fR
-.IX Subsection "sample_rate AVOption"
-.PP
-The syntax is:
-.PP
-.Vb 1
-\&        \-sample_rate <samplerate>
-.Ve
-.PP
-Specify the samplerate in Hz, by default 48kHz is used.
-.PP
-\fI\fIchannels\fI AVOption\fR
-.IX Subsection "channels AVOption"
-.PP
-The syntax is:
-.PP
-.Vb 1
-\&        \-channels <N>
-.Ve
-.PP
-Specify the channels in use, by default 2 (stereo) is set.
-.PP
-\fI\fIframe_size\fI AVOption\fR
-.IX Subsection "frame_size AVOption"
-.PP
-The syntax is:
-.PP
-.Vb 1
-\&        \-frame_size <bytes>
-.Ve
-.PP
-Specify the number of byte per frame, by default it is set to 1024.
-.PP
-\fI\fIfragment_size\fI AVOption\fR
-.IX Subsection "fragment_size AVOption"
-.PP
-The syntax is:
-.PP
-.Vb 1
-\&        \-fragment_size <bytes>
-.Ve
-.PP
-Specify the minimal buffering fragment in pulseaudio, it will affect the
-audio latency. By default it is unset.
 .SS "sndio"
 .IX Subsection "sndio"
 sndio input device.
@@ -887,13 +841,13 @@ properties of your X11 display (e.g. grep for \*(L"name\*(R" or \*(L"dimensions\
 For example to grab from \fI:0.0\fR using \fBffmpeg\fR:
 .PP
 .Vb 1
-\&        ffmpeg \-f x11grab \-r 25 \-s cif \-i :0.0 out.mpg
+\&        ffmpeg \-f x11grab \-framerate 25 \-video_size cif \-i :0.0 out.mpg
 .Ve
 .PP
 Grab at position \f(CW\*(C`10,20\*(C'\fR:
 .PP
 .Vb 1
-\&        ffmpeg \-f x11grab \-r 25 \-s cif \-i :0.0+10,20 out.mpg
+\&        ffmpeg \-f x11grab \-framerate 25 \-video_size cif \-i :0.0+10,20 out.mpg
 .Ve
 .PP
 \fIOptions\fR
@@ -915,13 +869,13 @@ zero) to the edge of region.
 For example:
 .Sp
 .Vb 1
-\&        ffmpeg \-f x11grab \-follow_mouse centered \-r 25 \-s cif \-i :0.0 out.mpg
+\&        ffmpeg \-f x11grab \-follow_mouse centered \-framerate 25 \-video_size cif \-i :0.0 out.mpg
 .Ve
 .Sp
 To follow only when the mouse pointer reaches within 100 pixels to edge:
 .Sp
 .Vb 1
-\&        ffmpeg \-f x11grab \-follow_mouse 100 \-r 25 \-s cif \-i :0.0 out.mpg
+\&        ffmpeg \-f x11grab \-follow_mouse 100 \-framerate 25 \-video_size cif \-i :0.0 out.mpg
 .Ve
 .IP "\fBframerate\fR" 4
 .IX Item "framerate"
@@ -938,20 +892,20 @@ know what is being grabbed if only a portion of the screen is grabbed.
 For example:
 .Sp
 .Vb 1
-\&        ffmpeg \-f x11grab \-show_region 1 \-r 25 \-s cif \-i :0.0+10,20 out.mpg
+\&        ffmpeg \-f x11grab \-show_region 1 \-framerate 25 \-video_size cif \-i :0.0+10,20 out.mpg
 .Ve
 .Sp
 With \fIfollow_mouse\fR:
 .Sp
 .Vb 1
-\&        ffmpeg \-f x11grab \-follow_mouse centered \-show_region 1 \-r 25 \-s cif \-i :0.0 out.mpg
+\&        ffmpeg \-f x11grab \-follow_mouse centered \-show_region 1 \-framerate 25 \-video_size cif \-i :0.0 out.mpg
 .Ve
 .IP "\fBvideo_size\fR" 4
 .IX Item "video_size"
 Set the video frame size. Default value is \f(CW\*(C`vga\*(C'\fR.
 .SH "OUTPUT DEVICES"
 .IX Header "OUTPUT DEVICES"
-Output devices are configured elements in FFmpeg which allow to write
+Output devices are configured elements in FFmpeg that can write
 multimedia data to an output device attached to your system.
 .PP
 When you configure your FFmpeg build, all the supported output devices
@@ -1048,9 +1002,77 @@ Show the list of available dither colors and exit:
 .Vb 1
 \&        ffmpeg \-i INPUT \-pix_fmt rgb24 \-f caca \-list_dither colors \-
 .Ve
+.SS "fbdev"
+.IX Subsection "fbdev"
+Linux framebuffer output device.
+.PP
+The Linux framebuffer is a graphic hardware-independent abstraction
+layer to show graphics on a computer monitor, typically on the
+console. It is accessed through a file device node, usually
+\&\fI/dev/fb0\fR.
+.PP
+For more detailed information read the file
+\&\fIDocumentation/fb/framebuffer.txt\fR included in the Linux source tree.
+.PP
+\fIOptions\fR
+.IX Subsection "Options"
+.IP "\fBxoffset\fR" 4
+.IX Item "xoffset"
+.PD 0
+.IP "\fByoffset\fR" 4
+.IX Item "yoffset"
+.PD
+Set x/y coordinate of top left corner. Default is 0.
+.PP
+\fIExamples\fR
+.IX Subsection "Examples"
+.PP
+Play a file on framebuffer device \fI/dev/fb0\fR.
+Required pixel format depends on current framebuffer settings.
+.PP
+.Vb 1
+\&        ffmpeg \-re \-i INPUT \-vcodec rawvideo \-pix_fmt bgra \-f fbdev /dev/fb0
+.Ve
+.PP
+See also <\fBhttp://linux\-fbdev.sourceforge.net/\fR>, and \fIfbset\fR\|(1).
 .SS "oss"
 .IX Subsection "oss"
 \&\s-1OSS\s0 (Open Sound System) output device.
+.SS "pulse"
+.IX Subsection "pulse"
+PulseAudio output device.
+.PP
+To enable this output device you need to configure FFmpeg with \f(CW\*(C`\-\-enable\-libpulse\*(C'\fR.
+.PP
+More information about PulseAudio can be found on <\fBhttp://www.pulseaudio.org\fR>
+.PP
+\fIOptions\fR
+.IX Subsection "Options"
+.IP "\fBserver\fR" 4
+.IX Item "server"
+Connect to a specific PulseAudio server, specified by an \s-1IP\s0 address.
+Default server is used when not provided.
+.IP "\fBname\fR" 4
+.IX Item "name"
+Specify the application name PulseAudio will use when showing active clients,
+by default it is the \f(CW\*(C`LIBAVFORMAT_IDENT\*(C'\fR string.
+.IP "\fBstream_name\fR" 4
+.IX Item "stream_name"
+Specify the stream name PulseAudio will use when showing active streams,
+by default it is set to the specified output name.
+.IP "\fBdevice\fR" 4
+.IX Item "device"
+Specify the device to use. Default device is used when not provided.
+List of output devices can be obtained with command \fBpactl list sinks\fR.
+.PP
+\fIExamples\fR
+.IX Subsection "Examples"
+.PP
+Play a file on default device on default server:
+.PP
+.Vb 1
+\&        ffmpeg  \-i INPUT \-f pulse "stream name"
+.Ve
 .SS "sdl"
 .IX Subsection "sdl"
 \&\s-1SDL\s0 (Simple DirectMedia Layer) output device.
@@ -1081,6 +1103,10 @@ Set the \s-1SDL\s0 window size, can be a string of the form
 \&\fIwidth\fRx\fIheight\fR or a video size abbreviation.
 If not specified it defaults to the size of the input video,
 downscaled according to the aspect ratio.
+.IP "\fBwindow_fullscreen\fR" 4
+.IX Item "window_fullscreen"
+Set fullscreen mode when non-zero value is provided.
+Zero is a default.
 .PP
 \fIExamples\fR
 .IX Subsection "Examples"
